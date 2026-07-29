@@ -1,0 +1,21 @@
+{
+  "name": "CompressX — Free Online Image Compressor",
+  "short_name": "CompressX",
+  "description": "Compress JPG, PNG, WebP, and AVIF images for free. 100% browser-based, no upload required.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0f0e",
+  "theme_color": "#0b1a17",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["utilities", "multimedia", "productivity"],
+  "lang": "en",
+  "dir": "ltr"
+}

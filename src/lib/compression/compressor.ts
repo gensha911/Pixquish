@@ -408,11 +408,34 @@ interface SearchOutcome {
   note?: string;
 }
 
-/** Binary search over quality (and progressively over scale) to approach a
- * target byte size.
- * When `enforceTarget` is true (Max Compress mode), the function guarantees
- * the returned blob will be at or under the target — even if that requires
- * extreme quality reduction and aggressive downscaling. */
+/** Tolerance band: results within this fraction of the target (from below)
+ *  are considered "ideally close" and preferred over any result that is
+ *  significantly smaller (which would indicate over-compression).
+ *  0.97 means a result >= 97% of target is considered near-ideal. */
+const TARGET_PROXIMITY = 0.97;
+
+/** Maximum quality ceiling used during searches. Keeping this just under 1.0
+ *  avoids browser encoders that round quality up to lossless at 1.0. */
+const QUALITY_CEILING = 0.95;
+
+/** Quality floor for the aggressive (Phase 3) search in Max mode.
+ *  Kept above 0.01 so we never produce a completely degenerate image. */
+const AGGRESSIVE_QUALITY_FLOOR = 0.05;
+
+/** Improved binary search over quality (and progressively over scale) to
+ *  approach a target byte size as closely as possible WITHOUT unnecessary
+ *  over-compression.
+ *
+ *  Design goals (Max Compress + target size):
+ *  1. Converge as close as possible to the target from below — never drop
+ *     well below the target if a higher-quality setting still fits.
+ *  2. Use fine-grained quality steps so visual quality doesn't collapse.
+ *  3. Prefer raising quality at the current scale before shrinking the image.
+ *
+ *  When `enforceTarget` is true (Max Compress mode), the function guarantees
+ *  the returned blob will be at or under the target — even if that requires
+ *  quality reduction and downscaling. The search still maximises quality
+ *  within that constraint. */
 async function searchTargetSize(
   source: CanvasImageSource,
   origW: number,
@@ -429,17 +452,27 @@ async function searchTargetSize(
   let bestAbove: EncodeCandidate | null = null;
   const report = (frac: number) => onProgress?.(frac);
 
-  // Phase 1: proper binary search over quality at full resolution.
-  // Skip for lossless formats (PNG) where quality has no effect on size.
-  // AVIF uses fewer steps since each encode is ~5-10x slower.
+  // Track whether we already have a near-ideal result (within the proximity
+  // band). Once we do, subsequent phases can stop early to avoid wasting
+  // encodes and to avoid replacing a near-ideal result with an over-compressed
+  // one from a smaller scale.
+  const isNearIdeal = (c: EncodeCandidate | null): boolean =>
+    !!c && c.blob.size >= target * TARGET_PROXIMITY && c.blob.size <= target;
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Phase 1: quality binary search at FULL resolution (scale = 1).
+  // This is the highest-fidelity path — we only downscale if quality alone
+  // cannot reach the target.
+  // ─────────────────────────────────────────────────────────────────────
   if (!skipQualitySearch) {
     const slow = isSlowFormat(format);
+    // Finer granularity than before: 12 steps for fast formats gives
+    // ~0.0007 quality precision (vs 0.0019 at 9 steps). AVIF stays lean.
     let lo = floor;
-    let hi = 0.95;
-    const steps = slow ? 4 : 9; // AVIF: 4 steps (2^4 ≈ 0.06 precision), others: 9
+    let hi = QUALITY_CEILING;
+    const steps = slow ? 5 : 12;
 
-    // For AVIF: do a quick 3-point probe first to narrow the search range.
-    // This avoids wasting slow AVIF encodes in a wide binary search.
+    // For AVIF: quick 3-point probe to narrow the range before binary search.
     if (slow) {
       const probeQualities = [0.3, 0.6, 0.9];
       const probeCandidates: EncodeCandidate[] = [];
@@ -447,22 +480,20 @@ async function searchTargetSize(
         const pc = await encode(source, origW, origH, 1, format, pq);
         if (pc) probeCandidates.push(pc);
       }
-      report(0.3);
+      report(0.2);
 
-      // Sort by quality descending, find where we cross the target
       probeCandidates.sort((a, b) => b.quality - a.quality);
       for (let pi = 0; pi < probeCandidates.length; pi++) {
         const pr = probeCandidates[pi];
         if (pr.blob.size <= target) {
           lo = pr.quality;
           if (pi > 0) hi = probeCandidates[pi - 1].quality;
-          bestUnder = pickBetterUnder(bestUnder, pr);
+          bestUnder = pickBetterUnder(bestUnder, pr, target);
           break;
         } else {
           bestAbove = pickSmallerAbove(bestAbove, pr);
         }
       }
-      // If all probes are over target, narrow hi to lowest probe quality
       if (!bestUnder && probeCandidates.length > 0) {
         const minQ = Math.min(...probeCandidates.map(c => c.quality));
         hi = minQ;
@@ -472,31 +503,41 @@ async function searchTargetSize(
     for (let i = 0; i < steps; i++) {
       const mid = (lo + hi) / 2;
       const cand = await encode(source, origW, origH, 1, format, mid);
-      report(Math.min(0.5, 0.3 + 0.2 * ((i + 1) / steps)));
-      // Yield to event loop every few iterations for smooth progress UI
+      report(Math.min(0.5, 0.2 + 0.25 * ((i + 1) / steps)));
       if (i % 3 === 2) await yieldToMain();
       if (!cand) continue;
 
       if (cand.blob.size <= target) {
-        bestUnder = pickBetterUnder(bestUnder, cand);
-        lo = mid; // under target → try higher quality
-        // Early termination: if within 15% of target, good enough
-        if (slow && cand.blob.size >= target * 0.85) {
-          report(0.55);
+        bestUnder = pickBetterUnder(bestUnder, cand, target);
+        lo = mid; // under target → push quality higher
+        // Early exit: within the proximity band, we're essentially at target.
+        if (isNearIdeal(bestUnder)) {
+          // Refine a little more around this quality to squeeze out maximum
+          // quality while staying under target, then return.
+          bestUnder = await refineAroundBest(
+            source, origW, origH, 1, format, bestUnder, lo, hi, target, report, 0.5, 0.6,
+          );
+          report(0.6);
           return { best: bestUnder, met: true };
         }
       } else {
         bestAbove = pickSmallerAbove(bestAbove, cand);
-        hi = mid; // over target → narrow upper bound
+        hi = mid;
       }
     }
 
     if (bestUnder) {
-      report(0.55);
+      // Phase 1 met the target (possibly well under). Refine upward to
+      // recover any quality we can without exceeding the target.
+      bestUnder = await refineAroundBest(
+        source, origW, origH, 1, format, bestUnder, bestUnder.quality, QUALITY_CEILING, target, report, 0.55, 0.62,
+      );
+      report(0.62);
       return { best: bestUnder, met: true };
     }
   } else {
-    // Lossless: do a single encode at full res to establish the baseline.
+    // Lossless (PNG): quality has no effect, so a single full-res encode
+    // establishes the baseline. Only downscaling can reduce size.
     const baseline = await encode(source, origW, origH, 1, format, 1);
     if (baseline) {
       if (baseline.blob.size <= target) {
@@ -508,52 +549,74 @@ async function searchTargetSize(
     report(0.1);
   }
 
-  // Phase 2: progressively downscale and binary-search quality per scale.
-  // We search ALL scales (don't break early) so pickBetterUnder can find
-  // the result closest to the target rather than the first one that fits.
+  // ─────────────────────────────────────────────────────────────────────
+  // Phase 2: progressive downscale with quality binary search per scale.
+  // Only reached when quality alone at full resolution can't hit the target.
+  //
+  // Key improvement: each scale that finds a candidate under target is
+  // refined upward in quality (not just accepted at the binary-search
+  // midpoint). We also stop early if a near-ideal result is found, rather
+  // than continuing to shrink unnecessarily.
+  // ─────────────────────────────────────────────────────────────────────
   const slow = isSlowFormat(format);
   const allScales = skipQualitySearch
     ? [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.4, 0.3, 0.2, 0.15, 0.1]
     : slow
-      ? [0.85, 0.75, 0.65, 0.55, 0.45] // AVIF: fewer scales (more size-efficient)
+      ? [0.85, 0.75, 0.65, 0.55, 0.45]
       : [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6];
   const scales = allScales.filter((s) => s >= sFloor);
 
   for (let si = 0; si < scales.length; si++) {
     const scale = scales[si];
-    const frac = 0.55 + 0.35 * ((si + 1) / scales.length);
+    const frac = 0.62 + 0.25 * ((si + 1) / scales.length);
 
     if (skipQualitySearch) {
-      // Lossless: single encode per scale (quality has no effect on PNG size).
       const cand = await encode(source, origW, origH, scale, format, 1);
       report(frac);
       if (!cand) continue;
       if (cand.blob.size <= target) {
-        bestUnder = pickBetterUnder(bestUnder, cand);
+        bestUnder = pickBetterUnder(bestUnder, cand, target);
+        // Near-ideal lossless result — stop shrinking.
+        if (isNearIdeal(bestUnder)) {
+          report(0.9);
+          return { best: bestUnder, met: true };
+        }
       } else {
         bestAbove = pickSmallerAbove(bestAbove, cand);
       }
     } else {
-      // Lossy: proper binary search per scale level.
-      // AVIF: fewer steps per scale to avoid slow repeated encoding.
+      // Binary search quality at this scale, then refine upward.
       let lo = floor;
-      let hi = 0.95;
-      const stepsPerScale = slow ? 3 : 7;
+      let hi = QUALITY_CEILING;
+      const stepsPerScale = slow ? 4 : 8;
       for (let i = 0; i < stepsPerScale; i++) {
         const mid = (lo + hi) / 2;
         const cand = await encode(source, origW, origH, scale, format, mid);
-        report(frac - 0.05 + 0.05 * ((i + 1) / stepsPerScale));
+        report(frac - 0.03 + 0.03 * ((i + 1) / stepsPerScale));
         if (!cand) continue;
         if (cand.blob.size <= target) {
-          bestUnder = pickBetterUnder(bestUnder, cand);
+          bestUnder = pickBetterUnder(bestUnder, cand, target);
           lo = mid;
-          // AVIF early termination within 15% of target
-          if (slow && cand.blob.size >= target * 0.85) break;
+          if (isNearIdeal(bestUnder)) break;
         } else {
           bestAbove = pickSmallerAbove(bestAbove, cand);
           hi = mid;
         }
         await yieldToMain();
+      }
+
+      // Refine upward at this scale to maximise quality under target.
+      if (bestUnder && bestUnder.scale === scale) {
+        bestUnder = await refineAroundBest(
+          source, origW, origH, scale, format, bestUnder, bestUnder.quality, QUALITY_CEILING, target, report, frac, frac + 0.02,
+        );
+      }
+
+      // If we have a near-ideal result, stop shrinking — further scales
+      // would only reduce resolution without meaningful size gain.
+      if (isNearIdeal(bestUnder)) {
+        report(0.9);
+        return { best: bestUnder, met: true };
       }
     }
   }
@@ -563,13 +626,22 @@ async function searchTargetSize(
     return { best: bestUnder, met: true };
   }
 
-  // Phase 3 (enforceTarget only): Ignore quality/scale floors entirely.
-  // Search ALL scales so pickBetterUnder can find the result closest to the
-  // target, rather than returning the first one that happens to fit.
+  // ─────────────────────────────────────────────────────────────────────
+  // Phase 3 (enforceTarget / Max Compress only): guarantee the target is
+  // met even at the cost of visual quality.
+  //
+  // Key improvements over the old aggressive search:
+  //  • Quality ceiling is 0.6 (not 0.5) — recovers more fidelity when the
+  //    scale is already small enough to satisfy the target.
+  //  • Each scale refines upward in quality instead of accepting the
+  //    binary-search midpoint, preventing unnecessary quality collapse.
+  //  • Stops as soon as a near-ideal (within proximity band) result is
+  //    found, so we don't keep shrinking past the point of usefulness.
+  // ─────────────────────────────────────────────────────────────────────
   if (enforceTarget) {
     const aggressiveScales = slow
-      ? [0.4, 0.3, 0.2, 0.15, 0.1, 0.07, 0.05] // AVIF: fewer aggressive scales
-      : [0.5, 0.45, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15, 0.1, 0.08, 0.07, 0.05, 0.04, 0.03];
+      ? [0.5, 0.4, 0.3, 0.2, 0.15, 0.1, 0.07, 0.05]
+      : [0.55, 0.5, 0.45, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15, 0.1, 0.08, 0.06, 0.05, 0.04];
 
     for (let si = 0; si < aggressiveScales.length; si++) {
       const scale = aggressiveScales[si];
@@ -580,23 +652,23 @@ async function searchTargetSize(
         report(frac);
         if (!cand) continue;
         if (cand.blob.size <= target) {
-          bestUnder = pickBetterUnder(bestUnder, cand);
+          bestUnder = pickBetterUnder(bestUnder, cand, target);
+          if (isNearIdeal(bestUnder)) break;
         } else {
           bestAbove = pickSmallerAbove(bestAbove, cand);
         }
       } else {
-        // Binary search quality from 0.01 to 0.5 at this scale.
-        // AVIF: fewer steps.
-        let lo = 0.01;
-        let hi = 0.5;
-        const aggressiveSteps = slow ? 3 : 6;
+        // Wider quality range than before [floor, 0.6] with refinement.
+        let lo = AGGRESSIVE_QUALITY_FLOOR;
+        let hi = 0.6;
+        const aggressiveSteps = slow ? 4 : 7;
         for (let i = 0; i < aggressiveSteps; i++) {
           const mid = (lo + hi) / 2;
           const cand = await encode(source, origW, origH, scale, format, mid);
           report(frac);
           if (!cand) continue;
           if (cand.blob.size <= target) {
-            bestUnder = pickBetterUnder(bestUnder, cand);
+            bestUnder = pickBetterUnder(bestUnder, cand, target);
             lo = mid;
           } else {
             bestAbove = pickSmallerAbove(bestAbove, cand);
@@ -604,14 +676,25 @@ async function searchTargetSize(
           }
           await yieldToMain();
         }
+
+        // Refine upward at this aggressive scale to recover quality.
+        if (bestUnder && bestUnder.scale === scale) {
+          bestUnder = await refineAroundBest(
+            source, origW, origH, scale, format, bestUnder, bestUnder.quality, 0.6, target, report, frac, frac + 0.005,
+          );
+        }
+
+        if (isNearIdeal(bestUnder)) break;
       }
     }
 
     // Last resort: extremely tiny scale.
-    const lastResort = await encode(source, origW, origH, 0.02, format, skipQualitySearch ? 1 : 0.01);
+    const lastResort = await encode(
+      source, origW, origH, 0.02, format, skipQualitySearch ? 1 : AGGRESSIVE_QUALITY_FLOOR,
+    );
     if (lastResort) {
       if (lastResort.blob.size <= target) {
-        bestUnder = pickBetterUnder(bestUnder, lastResort);
+        bestUnder = pickBetterUnder(bestUnder, lastResort, target);
       } else {
         bestAbove = pickSmallerAbove(bestAbove, lastResort);
       }
@@ -619,11 +702,14 @@ async function searchTargetSize(
 
     if (bestUnder) {
       report(0.99);
-      return {
-        best: bestUnder,
-        met: true,
-        note: `Target ${formatBytes(target)} reached with aggressive compression (quality ${Math.round(bestUnder.quality * 100)}%, scale ${Math.round(bestUnder.scale * 100)}%). Image quality is significantly reduced.`,
-      };
+      const q = Math.round(bestUnder.quality * 100);
+      const s = Math.round(bestUnder.scale * 100);
+      const ratio = bestUnder.blob.size / target;
+      const note =
+        ratio >= TARGET_PROXIMITY
+          ? `Target ${formatBytes(target)} reached precisely (quality ${q}%, scale ${s}%).`
+          : `Target ${formatBytes(target)} reached with aggressive compression (quality ${q}%, scale ${s}%). Image quality is significantly reduced.`;
+      return { best: bestUnder, met: true, note };
     }
   }
 
@@ -636,15 +722,69 @@ async function searchTargetSize(
   return { best: bestAbove ?? bestUnder, met: false, note };
 }
 
+/** Fine-grained upward refinement: given a candidate that is already under
+ *  the target at (scale, quality), probe qualities just above `quality` to
+ *  recover as much visual fidelity as possible without exceeding the target.
+ *
+ *  This is the key routine that prevents over-compression: instead of
+ *  accepting the binary-search midpoint (which can be well below target),
+ *  we push quality up until we're as close to the target as possible. */
+async function refineAroundBest(
+  source: CanvasImageSource,
+  origW: number,
+  origH: number,
+  scale: number,
+  format: string,
+  current: EncodeCandidate,
+  qLo: number,
+  qHi: number,
+  target: number,
+  onProgress?: (p: number) => void,
+  fracStart = 0.55,
+  fracEnd = 0.62,
+): Promise<EncodeCandidate> {
+  let best = current;
+  // Small number of fine steps — quality-to-size is monotonic, so a short
+  // upward scan is enough to find the sweet spot.
+  const fineSteps = 4;
+  let lo = qLo;
+  let hi = qHi;
+  for (let i = 0; i < fineSteps; i++) {
+    const mid = (lo + hi) / 2;
+    // Skip if mid is at or below current best quality (no gain possible).
+    if (mid <= best.quality + 0.005) break;
+    const cand = await encode(source, origW, origH, scale, format, mid);
+    onProgress?.(fracStart + (fracEnd - fracStart) * ((i + 1) / fineSteps));
+    if (!cand) continue;
+    if (cand.blob.size <= target) {
+      // Still under target at higher quality → adopt and keep pushing up.
+      best = cand;
+      lo = mid;
+    } else {
+      // Over target at this quality → pull the ceiling down.
+      hi = mid;
+    }
+    await yieldToMain();
+  }
+  return best;
+}
+
+/** Pick the better of two candidates that are both under the target.
+ *  Prefers the one closest to the target (largest size under target) so we
+ *  never settle for a much smaller file when a nearer-to-target one exists.
+ *  Ties in size favour higher quality. */
 function pickBetterUnder(
   prev: EncodeCandidate | null,
   next: EncodeCandidate,
+  target: number,
 ): EncodeCandidate {
   if (!prev) return next;
-  // Prefer the one closer to (but under) the target = larger size under target
-  // with the higher quality. Both are under target; choose larger size (better
-  // quality) as long as it's still under.
-  return next.blob.size > prev.blob.size ? next : prev;
+  // Both under target. Prefer the one closer to target = larger size.
+  // Only prefer `next` if it is both larger (closer to target) AND not
+  // exceeding the target. Quality breaks size ties.
+  if (next.blob.size > prev.blob.size) return next;
+  if (next.blob.size === prev.blob.size && next.quality > prev.quality) return next;
+  return prev;
 }
 
 function pickSmallerAbove(

@@ -92,6 +92,7 @@ const STEPS: GuideStep[] = [
     title: "Resize to Exact Dimensions",
     description:
       "Switch to the Resize tab and set precise width and height in pixels. You can also scale by percentage (10%–200%), or choose from 20+ presets for social media platforms like Instagram, X/Twitter, Facebook, YouTube, LinkedIn, and Pinterest.",
+    screenshot: "/guide/09-resize-dimensions.png",
     highlights: [
       "Set exact width × height in pixels",
       "Scale by percentage: 10%, 25%, 50%, 75%, 100%, 150%, 200%",
@@ -105,6 +106,7 @@ const STEPS: GuideStep[] = [
     title: "Lock Aspect Ratio & Choose Fit Mode",
     description:
       "Toggle the aspect ratio lock to keep proportions when changing one dimension. Then pick a fit mode: Cover fills the canvas and center-crops excess, Contain fits the image inside with optional padding color, and Stretch fills exactly (with a distortion warning if the ratio doesn't match).",
+    screenshot: "/guide/10-resize-fit-modes.png",
     highlights: [
       "Aspect ratio lock keeps proportions automatically",
       "Cover — fills canvas, center-crops excess",
@@ -117,12 +119,13 @@ const STEPS: GuideStep[] = [
     icon: LayoutGrid,
     title: "Smart Multi-Step Scaling",
     description:
-      "When shrinking images significantly, Pixquish uses a multi-step downscaling algorithm with high-quality smoothing. This produces sharper results than a single-step resize, especially for photos with fine detail.",
+      "When shrinking images significantly, Pixquish uses a multi-step downscaling algorithm with high-quality smoothing. This produces sharper results than a single-step resize, especially for photos with fine detail. The before/after comparison slider lets you inspect the result at full quality.",
+    screenshot: "/guide/11-resize-result.png",
     highlights: [
       "Multi-step halving for sharp downscaling",
       "High-quality image smoothing enabled",
       "Works with all fit modes and formats",
-      "Before/after preview updates live as you adjust",
+      "Before/after comparison slider with zoom",
     ],
   },
   // ─── Shared: Batch & Download ───

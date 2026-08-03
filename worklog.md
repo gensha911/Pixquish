@@ -216,3 +216,35 @@ Stage Summary:
 - prefers-reduced-motion path fully handled in CSS (animations, smooth scroll, backdrop-filter, entrance animations → all neutralized, content shows in final state)
 - All functionality verified working on mobile viewport (upload → compress → result → download all intact)
 - Lint clean, dev server healthy (HTTP 200), zero console/page errors
+
+---
+Task ID: 5
+Agent: Main
+Task: Fix PNG over-compression in Max Compress + target-size mode. User reported: 2.3 MB PNG targeting 50 KB compressed to 29.2 KB (21 KB below target, tiny 141×77 output) while a 13.9 MB JPG hit 49.9 KB precisely.
+
+Work Log:
+- Analyzed user's screenshot via VLM: confirmed File 1 (PNG, 2.3 MB) → 29.2 KB (overshoot), File 2 (JPG, 13.9 MB) → 49.9 KB (precise). Root cause: lossy formats get a fine-grained 12-step quality binary search; lossless PNG only got a coarse DISCRETE scale ladder [0.9, 0.85, ..., 0.15, 0.1]. Between scale 0.15 (~52 KB, over) and 0.1 (~23 KB, under) there was no intermediate, so it always overshot far below target.
+- Read compressor.ts (822 lines) to understand searchTargetSize structure: Phase 1 (quality binary search), Phase 2 (progressive downscale), Phase 3 (aggressive/enforceTarget). Lossless path used `skipQualitySearch=true` which skipped Phase 1 quality search and only walked discrete scale steps.
+- Designed fix: replace discrete scale ladder with a CONTINUOUS binary search over scale for lossless formats. PNG byte size is monotonic in scale, so bisection converges precisely to the target — finding the LARGEST scale that fits under the cap (maximising resolution) instead of the nearest discrete step.
+- Implemented new `searchLosslessByScale()` function (104 lines) in compressor.ts with 3 phases:
+  • Phase 1: full-res baseline encode; return early if already under target.
+  • Phase 2: coarse probe ladder [0.75, 0.5, 0.35, 0.25, 0.18, 0.13, 0.1, 0.07, 0.05, 0.03] to find the bracket (loScale under target, hiScale over target). Filtered by minScale (sFloor for non-enforce, 0.03 for enforceTarget).
+  • Phase 3: continuous binary search between loScale and hiScale, 16 iterations max, converging to largest scale under target. Early-exits when within TARGET_PROXIMITY (97%) band. Falls back to tiny 0.02 scale if no probe fit (enforceTarget mode only).
+- Wired delegation: `searchTargetSize` now checks `if (skipQualitySearch)` at the top and delegates to `searchLosslessByScale`. Lossy path (JPEG/WebP/AVIF) is completely unchanged.
+- Cleaned up dead code: removed the now-unreachable `skipQualitySearch` branches in Phase 1 (lossless else block), Phase 2 (lossless discrete-scale loop), and Phase 3 (lossless aggressive loop). Simplified `allScales` ternary (removed skipQualitySearch branch) and last-resort quality (removed `skipQualitySearch ? 1 : AGGRESSIVE_QUALITY_FLOOR` ternary). Moved `const slow = isSlowFormat(format)` to function scope (was duplicated in Phase 1 inner block + Phase 2). Code is now cleaner: lossy path and lossless path are clearly separated.
+- Ran `bun run lint` → clean (exit 0, zero errors).
+- Dev server compiled successfully (HTTP 200, no compile errors).
+- Verified end-to-end via Agent Browser:
+  • Generated a 2.58 MB test PNG (1100×780, crypto-random RGB) using sharp — closely matches user's 2.3 MB scenario.
+  • Uploaded to Pixquish, set Max Compress + 50 KB target + "Same as original" format (exact match to user's settings).
+  • Compressed → result: 2.5 MB → 49.2 KB (target 50 KB). That's 98.4% of target — precision hit!
+  • Compare to OLD behavior: 2.3 MB → 29.2 KB (58% of target, 21 KB below, 141×77 dims). NEW: 49.2 KB (98.4% of target, only 0.8 KB below, 162×115 dims — larger resolution preserved).
+  • Result note: "Target of 50.0 KB reached (49.2 KB)." — algorithm confirms precise convergence.
+  • Zero browser errors, zero console errors, zero dev server errors.
+
+Stage Summary:
+- Root cause: lossless PNG used a coarse discrete scale ladder; lossy formats used a fine quality binary search. The asymmetry caused PNG to overshoot far below target.
+- Fix: new `searchLosslessByScale()` performs a continuous binary search over scale for lossless formats, converging to the LARGEST scale that fits under the target cap. This maximises resolution while respecting the size constraint.
+- Before: 2.3 MB PNG → 29.2 KB (58% of target, 141×77). After: 2.5 MB PNG → 49.2 KB (98.4% of target, 162×115).
+- Lossy path (JPG/WebP/AVIF) completely unchanged — only dead branches removed, logic identical.
+- Lint clean, dev server healthy, zero errors, fix verified end-to-end.

@@ -96,6 +96,11 @@ export function useCompressionWorkspace(selectedIdsRef?: React.RefObject<Set<str
   const compressSigRef = React.useRef(sigRef.current);
   const queueRef = React.useRef<Set<string>>(new Set());
   const runningRef = React.useRef(false);
+  // Generation counter: incremented each time a NEW compress pass starts.
+  // A result is only committed if its generation still matches the current
+  // one — this prevents stale results from overwriting newer state when the
+  // user changes settings again while a slow compress is mid-flight.
+  const genRef = React.useRef(0);
 
   // Cache decoded image source + analysis per file id to skip re-decoding on re-compress.
   const sourceCacheRef = React.useRef<Map<string, CachedSource>>(new Map());
@@ -104,23 +109,39 @@ export function useCompressionWorkspace(selectedIdsRef?: React.RefObject<Set<str
   React.useEffect(() => {
     filesRef.current = files;
   }, [files]);
+
+  // Debounced auto-recompress: when controls change, wait a short moment
+  // before triggering re-compression. This collapses rapid setting changes
+  // (e.g. a user clicking through format options) into a single compress
+  // pass instead of firing one pass per click — a big perceived-speed win
+  // for format switches on large images.
+  const recompressTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   React.useEffect(() => {
     controlsRef.current = controls;
     const sig = signature(controls);
     sigRef.current = sig;
-    // If settings changed since last compress, auto-recompress done files
-    // while keeping their old result visible (no card flicker).
     if (sig !== compressSigRef.current) {
-      compressSigRef.current = sig;
-      const selectedSet = selectedIdsRef?.current;
-      const doneIds = filesRef.current
-        .filter((f) => f.status === "done" && (!selectedSet || selectedSet.has(f.id)))
-        .map((f) => f.id);
-      if (doneIds.length > 0) {
-        for (const id of doneIds) queueRef.current.add(id);
-        pump();
-      }
+      // Delay the re-compress so back-to-back control changes batch together.
+      if (recompressTimerRef.current) clearTimeout(recompressTimerRef.current);
+      recompressTimerRef.current = setTimeout(() => {
+        recompressTimerRef.current = null;
+        compressSigRef.current = sig;
+        const selectedSet = selectedIdsRef?.current;
+        const doneIds = filesRef.current
+          .filter((f) => f.status === "done" && (!selectedSet || selectedSet.has(f.id)))
+          .map((f) => f.id);
+        if (doneIds.length > 0) {
+          for (const id of doneIds) queueRef.current.add(id);
+          pump();
+        }
+      }, 150);
     }
+    return () => {
+      if (recompressTimerRef.current) {
+        clearTimeout(recompressTimerRef.current);
+        recompressTimerRef.current = null;
+      }
+    };
   }, [controls]);
 
   function updateFile(id: string, patch: Partial<CompressFile>) {
@@ -161,11 +182,14 @@ export function useCompressionWorkspace(selectedIdsRef?: React.RefObject<Set<str
     analysisCacheRef.current.delete(id);
   }
 
-  /** Process a single file through compression. */
+  /** Process a single file through compression. `gen` is the generation this
+   *  pass belongs to; if a newer pass has started by the time this finishes,
+   *  the stale result is discarded to avoid clobbering newer state. */
   async function processOneFile(
     id: string,
     startSig: string,
     opts: CompressionOptions,
+    gen: number,
   ) {
     const file = filesRef.current.find((f) => f.id === id);
     if (!file) return;
@@ -191,11 +215,19 @@ export function useCompressionWorkspace(selectedIdsRef?: React.RefObject<Set<str
       const result = await compressImage(
         file.file,
         opts,
-        (p) => updateFile(id, { progress: p }),
+        (p) => {
+          // Don't update progress if a newer pass has superseded this one.
+          if (genRef.current !== gen) return;
+          updateFile(id, { progress: p });
+        },
         cachedSource,
         cachedAnalysis,
         { formatVerified: isRecompress },
       );
+
+      // Stale guard: if a newer compress pass started while this one was
+      // running, discard this result rather than overwriting the newer state.
+      if (genRef.current !== gen) return;
 
       // Revoke any intermediate blob URLs before storing fresh result.
       const prev = filesRef.current.find((f) => f.id === id);
@@ -211,6 +243,7 @@ export function useCompressionWorkspace(selectedIdsRef?: React.RefObject<Set<str
         error: undefined,
       });
     } catch (err) {
+      if (genRef.current !== gen) return;
       updateFile(id, {
         status: "error",
         error:
@@ -223,17 +256,26 @@ export function useCompressionWorkspace(selectedIdsRef?: React.RefObject<Set<str
     if (runningRef.current) return;
     runningRef.current = true;
     try {
-      // Snapshot current state once — all files compress with the same settings.
+      // Each pump gets a fresh generation. Any in-flight work from a
+      // previous generation will be discarded when it finishes.
+      const gen = ++genRef.current;
+      // Snapshot + clear: items added DURING this pass go into a fresh
+      // queue and are processed by the recursive call below.
       const ids = [...queueRef.current];
       queueRef.current.clear();
       if (ids.length === 0) return;
-
       const startSig = sigRef.current;
       const opts = toOptions(controlsRef.current);
       // Fire all compressions in parallel — browser handles toBlob concurrency.
       await Promise.all(
-        ids.map((id) => processOneFile(id, startSig, opts)),
+        ids.map((id) => processOneFile(id, startSig, opts, gen)),
       );
+      // If more files were queued while we were running, process them now
+      // (the earlier pump() call would have returned early due to
+      // runningRef). This prevents queued work from being silently dropped.
+      if (queueRef.current.size > 0) {
+        await pump();
+      }
     } finally {
       runningRef.current = false;
     }

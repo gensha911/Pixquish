@@ -22,6 +22,23 @@ interface EncodeCandidate {
   height: number;
 }
 
+/** A canvas that has already been rendered (source drawn at a given scale)
+ *  and, for JPEG, had its alpha filled with white. Ready to be passed to
+ *  `encodeCanvas` for one or more quality probes.
+ *
+ *  KEY OPTIMIZATION: rendering (drawImage + multi-step downscale) is the
+ *  expensive part of compression — ~5-10x slower than toBlob. By rendering
+ *  ONCE per unique (source, scale, format) and reusing the canvas for every
+ *  quality probe in a binary search, we cut render calls from N (one per
+ *  quality step) to 1 per scale. For a 12-step Phase 1 search this is a
+ *  12x reduction in drawImage work. `canvas.toBlob` does NOT mutate the
+ *  canvas, so calling it repeatedly with different qualities is safe. */
+interface RenderedCanvas {
+  canvas: HTMLCanvasElement;
+  w: number;
+  h: number;
+}
+
 /** Encodes a canvas to a blob, wrapped as a promise. */
 function toBlob(
   canvas: HTMLCanvasElement,
@@ -110,16 +127,24 @@ function renderCanvas(
   return { canvas, w, h };
 }
 
-async function encode(
+/** Renders the source into a canvas at the given scale (EXPENSIVE: drawImage
+ *  + multi-step downscale) and prepares it for encoding. For JPEG, fills
+ *  alpha with white so transparency doesn't turn black on encode.
+ *
+ *  Call this ONCE per unique (source, scale, format), then pass the result
+ *  to `encodeCanvas` for every quality probe in a binary search. This avoids
+ *  re-rendering the canvas for each quality step. */
+function renderAndPrepare(
   source: CanvasImageSource,
   origW: number,
   origH: number,
   scale: number,
   format: string,
-  quality: number,
-): Promise<EncodeCandidate | null> {
+): RenderedCanvas {
   const { canvas, w, h } = renderCanvas(source, origW, origH, scale, format);
   // For JPEG, fill alpha with white so transparency doesn't turn black.
+  // destination-over is idempotent: only paints where pixels are transparent,
+  // so it's safe to apply once and then call toBlob many times.
   if (format === "image/jpeg") {
     const ctx = canvas.getContext("2d");
     if (ctx) {
@@ -129,9 +154,37 @@ async function encode(
       ctx.globalCompositeOperation = "source-over";
     }
   }
-  const blob = await toBlob(canvas, format, quality);
+  return { canvas, w, h };
+}
+
+/** Encodes an already-rendered canvas to a blob at the given quality.
+ *  CHEAP: just calls canvas.toBlob (no drawImage). Safe to call many times
+ *  on the same RenderedCanvas with different qualities — toBlob does not
+ *  mutate the canvas. */
+async function encodeCanvas(
+  rc: RenderedCanvas,
+  format: string,
+  quality: number,
+  scale: number,
+): Promise<EncodeCandidate | null> {
+  const blob = await toBlob(rc.canvas, format, quality);
   if (!blob) return null;
-  return { blob, quality, scale, width: w, height: h };
+  return { blob, quality, scale, width: rc.w, height: rc.h };
+}
+
+/** Single-shot encode: renders + encodes in one call. Used by callers that
+ *  don't benefit from canvas reuse (lossless probes at varying scales, the
+ *  standard-mode single encode, and the last-resort tiny-scale encode). */
+async function encode(
+  source: CanvasImageSource,
+  origW: number,
+  origH: number,
+  scale: number,
+  format: string,
+  quality: number,
+): Promise<EncodeCandidate | null> {
+  const rc = renderAndPrepare(source, origW, origH, scale, format);
+  return encodeCanvas(rc, format, quality, scale);
 }
 
 /** Quick feature-detection that the browser can encode a given format. */
@@ -599,8 +652,13 @@ async function searchTargetSize(
   // Phase 1: quality binary search at FULL resolution (scale = 1).
   // This is the highest-fidelity path — we only downscale if quality alone
   // cannot reach the target.
+  //
+  // PERF: render the full-res canvas ONCE, then reuse it for every quality
+  // probe (12 binary-search steps + 4 refine + 3 AVIF probes). Cuts render
+  // calls from ~19 to 1 in this phase alone.
   // ─────────────────────────────────────────────────────────────────────
   {
+    const rc = renderAndPrepare(source, origW, origH, 1, format);
     // Finer granularity than before: 12 steps for fast formats gives
     // ~0.0007 quality precision (vs 0.0019 at 9 steps). AVIF stays lean.
     let lo = floor;
@@ -612,7 +670,7 @@ async function searchTargetSize(
       const probeQualities = [0.3, 0.6, 0.9];
       const probeCandidates: EncodeCandidate[] = [];
       for (const pq of probeQualities) {
-        const pc = await encode(source, origW, origH, 1, format, pq);
+        const pc = await encodeCanvas(rc, format, pq, 1);
         if (pc) probeCandidates.push(pc);
       }
       report(0.2);
@@ -637,7 +695,7 @@ async function searchTargetSize(
 
     for (let i = 0; i < steps; i++) {
       const mid = (lo + hi) / 2;
-      const cand = await encode(source, origW, origH, 1, format, mid);
+      const cand = await encodeCanvas(rc, format, mid, 1);
       report(Math.min(0.5, 0.2 + 0.25 * ((i + 1) / steps)));
       if (i % 3 === 2) await yieldToMain();
       if (!cand) continue;
@@ -650,7 +708,7 @@ async function searchTargetSize(
           // Refine a little more around this quality to squeeze out maximum
           // quality while staying under target, then return.
           bestUnder = await refineAroundBest(
-            source, origW, origH, 1, format, bestUnder, lo, hi, target, report, 0.5, 0.6,
+            rc, format, bestUnder, lo, hi, target, report, 0.5, 0.6,
           );
           report(0.6);
           return { best: bestUnder, met: true };
@@ -665,7 +723,7 @@ async function searchTargetSize(
       // Phase 1 met the target (possibly well under). Refine upward to
       // recover any quality we can without exceeding the target.
       bestUnder = await refineAroundBest(
-        source, origW, origH, 1, format, bestUnder, bestUnder.quality, QUALITY_CEILING, target, report, 0.55, 0.62,
+        rc, format, bestUnder, bestUnder.quality, QUALITY_CEILING, target, report, 0.55, 0.62,
       );
       report(0.62);
       return { best: bestUnder, met: true };
@@ -680,6 +738,10 @@ async function searchTargetSize(
   // refined upward in quality (not just accepted at the binary-search
   // midpoint). We also stop early if a near-ideal result is found, rather
   // than continuing to shrink unnecessarily.
+  //
+  // PERF: render the canvas ONCE per scale (expensive drawImage + multi-step
+  // downscale), then reuse it for every quality probe at that scale
+  // (8 binary-search steps + 4 refine = ~12 toBlob calls on the same canvas).
   // ─────────────────────────────────────────────────────────────────────
   const allScales = slow
     ? [0.85, 0.75, 0.65, 0.55, 0.45]
@@ -688,6 +750,7 @@ async function searchTargetSize(
 
   for (let si = 0; si < scales.length; si++) {
     const scale = scales[si];
+    const rc = renderAndPrepare(source, origW, origH, scale, format);
     const frac = 0.62 + 0.25 * ((si + 1) / scales.length);
 
     // Binary search quality at this scale, then refine upward.
@@ -696,7 +759,7 @@ async function searchTargetSize(
     const stepsPerScale = slow ? 4 : 8;
     for (let i = 0; i < stepsPerScale; i++) {
       const mid = (lo + hi) / 2;
-      const cand = await encode(source, origW, origH, scale, format, mid);
+      const cand = await encodeCanvas(rc, format, mid, scale);
       report(frac - 0.03 + 0.03 * ((i + 1) / stepsPerScale));
       if (!cand) continue;
       if (cand.blob.size <= target) {
@@ -713,7 +776,7 @@ async function searchTargetSize(
     // Refine upward at this scale to maximise quality under target.
     if (bestUnder && bestUnder.scale === scale) {
       bestUnder = await refineAroundBest(
-        source, origW, origH, scale, format, bestUnder, bestUnder.quality, QUALITY_CEILING, target, report, frac, frac + 0.02,
+        rc, format, bestUnder, bestUnder.quality, QUALITY_CEILING, target, report, frac, frac + 0.02,
       );
     }
 
@@ -749,6 +812,7 @@ async function searchTargetSize(
 
     for (let si = 0; si < aggressiveScales.length; si++) {
       const scale = aggressiveScales[si];
+      const rc = renderAndPrepare(source, origW, origH, scale, format);
       const frac = 0.92 + 0.06 * ((si + 1) / aggressiveScales.length);
 
       // Wider quality range than before [floor, 0.6] with refinement.
@@ -757,7 +821,7 @@ async function searchTargetSize(
       const aggressiveSteps = slow ? 4 : 7;
       for (let i = 0; i < aggressiveSteps; i++) {
         const mid = (lo + hi) / 2;
-        const cand = await encode(source, origW, origH, scale, format, mid);
+        const cand = await encodeCanvas(rc, format, mid, scale);
         report(frac);
         if (!cand) continue;
         if (cand.blob.size <= target) {
@@ -773,7 +837,7 @@ async function searchTargetSize(
       // Refine upward at this aggressive scale to recover quality.
       if (bestUnder && bestUnder.scale === scale) {
         bestUnder = await refineAroundBest(
-          source, origW, origH, scale, format, bestUnder, bestUnder.quality, 0.6, target, report, frac, frac + 0.005,
+          rc, format, bestUnder, bestUnder.quality, 0.6, target, report, frac, frac + 0.005,
         );
       }
 
@@ -820,12 +884,12 @@ async function searchTargetSize(
  *
  *  This is the key routine that prevents over-compression: instead of
  *  accepting the binary-search midpoint (which can be well below target),
- *  we push quality up until we're as close to the target as possible. */
+ *  we push quality up until we're as close to the target as possible.
+ *
+ *  PERFORMANCE: takes a pre-rendered `RenderedCanvas` so every quality probe
+ *  in this refinement reuses the SAME canvas (just toBlob, no drawImage). */
 async function refineAroundBest(
-  source: CanvasImageSource,
-  origW: number,
-  origH: number,
-  scale: number,
+  rc: RenderedCanvas,
   format: string,
   current: EncodeCandidate,
   qLo: number,
@@ -845,7 +909,7 @@ async function refineAroundBest(
     const mid = (lo + hi) / 2;
     // Skip if mid is at or below current best quality (no gain possible).
     if (mid <= best.quality + 0.005) break;
-    const cand = await encode(source, origW, origH, scale, format, mid);
+    const cand = await encodeCanvas(rc, format, mid, current.scale);
     onProgress?.(fracStart + (fracEnd - fracStart) * ((i + 1) / fineSteps));
     if (!cand) continue;
     if (cand.blob.size <= target) {

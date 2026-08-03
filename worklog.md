@@ -328,3 +328,19 @@ Work Log:
 Stage Summary:
 - SEO is now production-complete and Vercel-ready. All meta tags server-rendered (critical for crawlers). 5 JSON-LD schemas cover Knowledge Graph (Organization), sitelinks (WebSite), rich results (FAQPage, BreadcrumbList, SoftwareApplication). Security + cache headers defined in both vercel.json and next.config.ts. Old domain fully purged. Dead /api route removed.
 - Deployment: just push to Vercel — metadataBase/sitemap/robots auto-resolve to the deployment URL via VERCEL_URL env. Set NEXT_PUBLIC_SITE_URL=https://pixquish.app in Vercel env vars after pointing the custom domain for canonical consistency.
+
+---
+Task ID: 8
+Agent: main
+Task: User clarified they're on Vercel free tier with no custom domain. Ensure SEO works out-of-box on *.vercel.app subdomain and prevent duplicate-content issues from preview deployments.
+
+Work Log:
+- Created centralized site-url resolver: src/lib/site-url.ts. Resolution order: NEXT_PUBLIC_SITE_URL (custom domain, future) → VERCEL_PROJECT_PRODUCTION_URL (stable production subdomain — KEY for free tier, consistent across preview+prod deployments) → VERCEL_URL (current deployment fallback) → https://pixquish.app (local dev fallback).
+- Refactored layout.tsx, sitemap.ts, robots.ts, privacy/page.tsx to import `siteUrl` from the shared lib — removed 4 copies of duplicated URL-building logic.
+- Key SEO fix: by preferring VERCEL_PROJECT_PRODUCTION_URL over VERCEL_URL, canonical/sitemap/OG URLs always point to the stable production subdomain (e.g. pixquish.vercel.app) even when a preview deployment URL is crawled. Prevents Google from indexing dozens of unique preview URLs as duplicate content.
+- Verified: lint clean, dev server recompiled, canonical/og_url/og_image/sitemap/robots all resolve correctly (local dev falls back to pixquish.app as expected; Vercel will auto-resolve to the *.vercel.app production URL via VERCEL_PROJECT_PRODUCTION_URL env var that Vercel sets automatically).
+
+Stage Summary:
+- Free-tier users need ZERO env var configuration. Deploy to Vercel → siteUrl auto-resolves to the stable production *.vercel.app subdomain via VERCEL_PROJECT_PRODUCTION_URL.
+- When a custom domain is added later, set NEXT_PUBLIC_SITE_URL=https://pixquish.app in Vercel env vars and everything repoints automatically — no code changes.
+- Duplicate-content risk from preview deployments eliminated: canonical always points to production subdomain.

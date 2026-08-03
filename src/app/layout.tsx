@@ -6,6 +6,7 @@ import "./globals.css";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/pixquish/theme-provider";
 import { MotionProvider } from "@/components/pixquish/motion-provider";
+import { siteUrl } from "@/lib/site-url";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,12 +19,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
 });
-
-// Uses VERCEL_URL (auto-set on Vercel) or falls back to pixquish.app.
-// Works on both free-tier subdomain and custom domain — no manual changes needed.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
-  ? `https://${(process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL).replace(/^https?:\/\//, "")}`
-  : "https://pixquish.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

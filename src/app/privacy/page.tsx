@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-
-// Dynamically resolves to the production domain or the current Vercel deployment.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
-  ? `https://${(process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL).replace(/^https?:\/\//, "")}`
-  : "https://pixquish.app";
+import { siteUrl } from "@/lib/site-url";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",

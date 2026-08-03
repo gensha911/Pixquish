@@ -1,11 +1,51 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { Zap, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ImageWorkspace } from "./image-workspace";
-import { ResizeWorkspace } from "./resize-workspace";
+
+// Workspaces are the heaviest modules in the app (the compression engine alone
+// is ~2,300 lines: compressor, resizer, image-analysis, worker-bridge).
+// They are fully client-side (Canvas + Web Worker) with zero SSR benefit, so
+// load them on demand — only the active tab's workspace is ever fetched.
+// This keeps the initial JS bundle small for low-end mobiles on slow networks.
+const ImageWorkspace = dynamic(
+  () => import("./image-workspace").then((m) => m.ImageWorkspace),
+  {
+    ssr: false,
+    loading: () => <WorkspaceSkeleton id="workspace" />,
+  },
+);
+
+const ResizeWorkspace = dynamic(
+  () => import("./resize-workspace").then((m) => m.ResizeWorkspace),
+  {
+    ssr: false,
+    loading: () => <WorkspaceSkeleton id="resize" />,
+  },
+);
+
+/** Lightweight placeholder shown while the active workspace chunk loads.
+ *  Mirrors the real workspace's section wrapper + upload area shape to avoid
+ *  layout shift, and keeps the hash anchor target resolvable. */
+function WorkspaceSkeleton({ id }: { id: string }) {
+  return (
+    <section id={id} className="relative scroll-mt-20 py-8 md:py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <div className="mx-auto h-6 w-32 rounded-full bg-muted/50" />
+          <div className="mx-auto mt-3 h-8 w-64 rounded-lg bg-muted/40" />
+          <div className="mx-auto mt-2 h-4 w-80 rounded-lg bg-muted/40" />
+        </div>
+        <div className="mx-auto mt-6 max-w-3xl">
+          <div className="h-48 rounded-3xl border-2 border-dashed border-border bg-card/40" />
+        </div>
+      </div>
+    </section>
+  );
+}
 
 type ToolMode = "compress" | "resize";
 

@@ -6,11 +6,11 @@ import { motion } from "framer-motion";
 import { Zap, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Workspaces are the heaviest modules in the app (the compression engine alone
-// is ~2,300 lines: compressor, resizer, image-analysis, worker-bridge).
-// They are fully client-side (Canvas + Web Worker) with zero SSR benefit, so
-// load them on demand — only the active tab's workspace is ever fetched.
-// This keeps the initial JS bundle small for low-end mobiles on slow networks.
+// Workspaces are the heaviest modules in the app (the compression engine
+// alone is ~1,700 lines: compressor, resizer, image-analysis). They are
+// fully client-side (Canvas) with zero SSR benefit, so load them on demand —
+// only the active tab's workspace is ever fetched. This keeps the initial
+// JS bundle small for low-end mobiles on slow networks.
 const ImageWorkspace = dynamic(
   () => import("./image-workspace").then((m) => m.ImageWorkspace),
   {

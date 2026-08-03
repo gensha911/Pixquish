@@ -308,3 +308,23 @@ Stage Summary:
 - Queue re-check fixes silent work-drop bug when pump is busy.
 - Removed ~842 lines of dead/broken worker code (worker-bridge.ts, compress.worker.ts, use-compression-worker.ts) that shipped in the bundle but was never used. Removed 22 MB of temp files.
 - Lint clean, dev server healthy, zero errors, all functionality verified intact (upload → compress → format switch → result → download).
+
+---
+Task ID: 7
+Agent: main
+Task: Verify SEO metadata completeness for top-ranking + Vercel deployment readiness. Fix any gaps.
+
+Work Log:
+- Audited existing SEO: layout.tsx metadata, sitemap.ts, robots.ts, manifest.json, Google verification file, og-image.png, favicon.svg
+- Found and fixed critical gap: privacy page had NO metadata export AND still referenced the OLD domain `image-compressorx-z66r.vercel.app` (leftover from pre-brand-rename). Updated both domain refs to `pixquish.app`, added a full metadata export (title via template, description, canonical, OG, Twitter, robots), and added a privacy-relevant intro paragraph.
+- Added Organization + WebSite JSON-LD schemas to layout.tsx (Knowledge Graph + sitelinks eligibility). Now 5 schemas render: SoftwareApplication, FAQPage, BreadcrumbList, Organization, WebSite.
+- Added /privacy to sitemap.ts (priority 0.3, yearly changefreq).
+- Created vercel.json: framework=nextjs, security headers (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS), immutable caching for og-image/favicon/guide assets, cleanUrls, no trailingSlash.
+- Hardened next.config.ts: added poweredByHeader:false, compress:true, async headers() mirroring vercel.json security + cache rules (so baseline holds in any runtime, not just Vercel).
+- Removed unused placeholder /api/route.ts ("Hello, world!") — nothing referenced it; cleaner production build.
+- Polished manifest.json: added scope, keywords array, maskable icon purpose, photography category, richer description.
+- Verified via Agent Browser: title, description, 73 keywords, canonical, robots+googlebot directives, full Open Graph, Twitter card, manifest link, icon, apple-touch-icon, theme-color, H1, and all 5 JSON-LD types render server-side. /privacy page: 0 old-domain refs, 30 pixquish.app refs, proper metadata. /sitemap.xml serves 2 URLs. /robots.txt serves 5 user-agents + sitemap. Google verification file HTTP 200 text/html. og-image/favicon/manifest all 200. Zero console errors, zero page errors.
+
+Stage Summary:
+- SEO is now production-complete and Vercel-ready. All meta tags server-rendered (critical for crawlers). 5 JSON-LD schemas cover Knowledge Graph (Organization), sitelinks (WebSite), rich results (FAQPage, BreadcrumbList, SoftwareApplication). Security + cache headers defined in both vercel.json and next.config.ts. Old domain fully purged. Dead /api route removed.
+- Deployment: just push to Vercel — metadataBase/sitemap/robots auto-resolve to the deployment URL via VERCEL_URL env. Set NEXT_PUBLIC_SITE_URL=https://pixquish.app in Vercel env vars after pointing the custom domain for canonical consistency.

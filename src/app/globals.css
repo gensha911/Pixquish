@@ -308,3 +308,94 @@ nextjs-portal {
   from { opacity: 0; transform: translateY(-12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ───────────────────────────────────────────────────────────────
+   Low-end mobile & accessibility optimizations
+
+   backdrop-filter (blur + saturate) is the #1 cause of scroll jank on
+   low-end mobiles because the browser must re-rasterize the blurred
+   backdrop on every frame. These rules progressively lighten the cost:
+   1. On small screens: drop saturate() and reduce blur radius.
+   2. Under prefers-reduced-motion: disable backdrop-filter, animations,
+      and smooth scroll entirely (replaces blur with a solid translucency
+      so the UI still looks intentional).
+   ─────────────────────────────────────────────────────────────── */
+
+/* Small screens / touch devices: lighten backdrop-filter.
+   saturate() is the most expensive part on mobile GPUs, so drop it and
+   reduce the blur radius to keep scroll smooth on low-end phones. */
+@media (max-width: 640px) {
+  .glass {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .dark .glass {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .glass-strong {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .dark .glass-strong {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  /* Cap Tailwind backdrop-blur utilities at a lighter radius for mobile perf */
+  .backdrop-blur,
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* Respect prefers-reduced-motion: disable non-essential animations,
+   smooth scroll, and expensive backdrop-filter. Replaces blur with a
+   solid translucent background so the UI still reads correctly. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Ensure CSS entrance animations end in their visible (final) state */
+  .animate-fade-in-up,
+  .animate-fade-in-down {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  /* Drop expensive backdrop-filter entirely; use solid translucent bg */
+  .glass,
+  .glass-strong {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: oklch(0.99 0.002 168 / 0.94) !important;
+  }
+  .dark .glass,
+  .dark .glass-strong {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: oklch(0.17 0.008 168 / 0.94) !important;
+  }
+  /* Neutralize Tailwind backdrop-blur utilities too */
+  .backdrop-blur,
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}

@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import "./globals.css";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/pixquish/theme-provider";
+import { MotionProvider } from "@/components/pixquish/motion-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -347,8 +348,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <SonnerToaster position="bottom-right" richColors closeButton />
+          <MotionProvider>
+            {children}
+            <SonnerToaster position="bottom-right" richColors closeButton />
+          </MotionProvider>
         </ThemeProvider>
         <script
           type="application/ld+json"

@@ -4,7 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import "./globals.css";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
-import { ThemeProvider } from "@/components/compressx/theme-provider";
+import { ThemeProvider } from "@/components/pixquish/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,18 +18,18 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-// Uses VERCEL_URL (auto-set on Vercel) or falls back to compressx.app.
+// Uses VERCEL_URL (auto-set on Vercel) or falls back to pixquish.app.
 // Works on both free-tier subdomain and custom domain — no manual changes needed.
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
   ? `https://${(process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL).replace(/^https?:\/\//, "")}`
-  : "https://compressx.app";
+  : "https://pixquish.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default:
-      "CompressX — Free Online Image Compressor & Resizer | JPG, PNG, WebP, AVIF",
-    template: "%s · CompressX",
+      "Pixquish — Free Online Image Compressor & Resizer | JPG, PNG, WebP, AVIF",
+    template: "%s · Pixquish",
   },
   description:
     "Compress and resize images online for free. Reduce file sizes by up to 80% while preserving quality. Resize to exact dimensions, pick social media presets, and choose fit modes. 100% browser-based, private, and fast.",
@@ -113,20 +113,20 @@ export const metadata: Metadata = {
     "compressor.io alternative",
     "best free image compressor 2025",
   ],
-  authors: [{ name: "CompressX" }],
-  creator: "CompressX",
-  publisher: "CompressX",
-  applicationName: "CompressX",
+  authors: [{ name: "Pixquish" }],
+  creator: "Pixquish",
+  publisher: "Pixquish",
+  applicationName: "Pixquish",
   category: "technology",
   alternates: {
     canonical: siteUrl,
   },
   openGraph: {
-    title: "CompressX — Free Online Image Compressor & Resizer",
+    title: "Pixquish — Free Online Image Compressor & Resizer",
     description:
       "Compress and resize JPG, PNG, WebP, and AVIF images online for free. Resize to any dimension, pick social media presets, and batch process. 100% browser-based — your images never leave your device.",
     url: siteUrl,
-    siteName: "CompressX",
+    siteName: "Pixquish",
     type: "website",
     locale: "en_US",
     images: [
@@ -134,14 +134,14 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1344,
         height: 768,
-        alt: "CompressX — Free online image compressor and resizer. Reduce and resize JPG, PNG, WebP, AVIF files in seconds.",
+        alt: "Pixquish — Free online image compressor and resizer. Reduce and resize JPG, PNG, WebP, AVIF files in seconds.",
         type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CompressX — Free Online Image Compressor & Resizer",
+    title: "Pixquish — Free Online Image Compressor & Resizer",
     description:
       "Compress and resize images by up to 80%. Supports JPG, PNG, WebP, AVIF. Exact dimensions, social presets, fit modes. 100% free, no upload, browser-based.",
     images: ["/og-image.png"],
@@ -176,7 +176,7 @@ export const viewport: Viewport = {
 const softwareAppLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "CompressX",
+  name: "Pixquish",
   applicationCategory: "MultimediaApplication",
   operatingSystem: "Any (Browser-based)",
   url: siteUrl,
@@ -224,7 +224,7 @@ const faqLd = {
       name: "Are my images uploaded to a server?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "No. CompressX processes every image entirely inside your browser using the Canvas API. Your files never touch a server, so they stay completely private.",
+        text: "No. Pixquish processes every image entirely inside your browser using the Canvas API. Your files never touch a server, so they stay completely private.",
       },
     },
     {
@@ -253,7 +253,7 @@ const faqLd = {
     },
     {
       "@type": "Question",
-      name: "How does CompressX choose image quality?",
+      name: "How does Pixquish choose image quality?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "Before compressing, each image is analyzed for dimensions, transparency, color complexity, edges, and likely content type (photo, logo, screenshot). The engine then picks the best encoder, format, and quality for that specific image — never one fixed setting.",
@@ -264,7 +264,7 @@ const faqLd = {
       name: "What is the target file size feature?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Choose a desired output size (e.g. 100 KB) and CompressX uses a binary search over quality settings to produce a file as close as possible to your target while preserving good visual quality.",
+        text: "Choose a desired output size (e.g. 100 KB) and Pixquish uses a binary search over quality settings to produce a file as close as possible to your target while preserving good visual quality.",
       },
     },
     {
@@ -272,7 +272,7 @@ const faqLd = {
       name: "Will compression reduce my image's visual quality?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Some reduction is unavoidable, but CompressX prioritizes quality. The 'Best Quality' mode keeps artifacts, blur, and banding to a minimum, and transparency is always preserved.",
+        text: "Some reduction is unavoidable, but Pixquish prioritizes quality. The 'Best Quality' mode keeps artifacts, blur, and banding to a minimum, and transparency is always preserved.",
       },
     },
     {
@@ -285,7 +285,7 @@ const faqLd = {
     },
     {
       "@type": "Question",
-      name: "Does CompressX work on mobile?",
+      name: "Does Pixquish work on mobile?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "Absolutely. The interface is mobile-first and touch-friendly, using the native file picker on phones and drag-and-drop on desktops.",
@@ -293,10 +293,10 @@ const faqLd = {
     },
     {
       "@type": "Question",
-      name: "Is CompressX free?",
+      name: "Is Pixquish free?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes. CompressX is free to use, with no sign-up required.",
+        text: "Yes. Pixquish is free to use, with no sign-up required.",
       },
     },
   ],
@@ -369,12 +369,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `(function(){
               var q=[];var ready=false;
-              window.__compressx_pending=q;
-              window.__compressx_hydrated=function(){ready=true;};
+              window.__pixquish_pending=q;
+              window.__pixquish_hydrated=function(){ready=true;};
               document.addEventListener("change",function(e){
                 if(ready)return;
                 var t=e.target;
-                if(!t||!t.hasAttribute||!t.hasAttribute("data-compressx-upload"))return;
+                if(!t||!t.hasAttribute||!t.hasAttribute("data-pixquish-upload"))return;
                 if(t.files&&t.files.length){
                   for(var i=0;i<t.files.length;i++)q.push(t.files[i]);
                   t.value="";

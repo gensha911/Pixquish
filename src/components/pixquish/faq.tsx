@@ -20,7 +20,7 @@ const FAQ_ENTRIES: FaqEntry[] = [
   {
     question: "Are my images uploaded to a server?",
     answer:
-      "No. CompressX processes every image entirely inside your browser using the Canvas API. Your files never touch a server, so they stay completely private.",
+      "No. Pixquish processes every image entirely inside your browser using the Canvas API. Your files never touch a server, so they stay completely private.",
   },
   {
     question: "What image formats are supported?",
@@ -38,19 +38,19 @@ const FAQ_ENTRIES: FaqEntry[] = [
       "Cover fills the canvas and center-crops any excess. Contain fits the image inside the canvas with optional padding color (useful for logos). Stretch fills the exact dimensions (with a distortion warning if the aspect ratio differs).",
   },
   {
-    question: "How does CompressX choose image quality?",
+    question: "How does Pixquish choose image quality?",
     answer:
       "Before compressing, each image is analyzed for dimensions, transparency, color complexity, edges, and likely content type (photo, logo, screenshot). The engine then picks the best encoder, format, and quality for that specific image — never one fixed setting.",
   },
   {
     question: "What is the target file size feature?",
     answer:
-      "Choose a desired output size (e.g. 100 KB) and CompressX uses a binary search over quality settings to produce a file as close as possible to your target while preserving good visual quality.",
+      "Choose a desired output size (e.g. 100 KB) and Pixquish uses a binary search over quality settings to produce a file as close as possible to your target while preserving good visual quality.",
   },
   {
     question: "Will compression reduce my image's visual quality?",
     answer:
-      "Some reduction is unavoidable, but CompressX prioritizes quality. The 'Best Quality' mode keeps artifacts, blur, and banding to a minimum, and transparency is always preserved.",
+      "Some reduction is unavoidable, but Pixquish prioritizes quality. The 'Best Quality' mode keeps artifacts, blur, and banding to a minimum, and transparency is always preserved.",
   },
   {
     question: "Can I process multiple images at once?",
@@ -58,13 +58,13 @@ const FAQ_ENTRIES: FaqEntry[] = [
       "Yes. You can drag in or pick several files at once and compress or resize them all with the same settings. Select specific files with checkboxes or process everything.",
   },
   {
-    question: "Does CompressX work on mobile?",
+    question: "Does Pixquish work on mobile?",
     answer:
       "Absolutely. The interface is mobile-first and touch-friendly, using the native file picker on phones and drag-and-drop on desktops.",
   },
   {
-    question: "Is CompressX free?",
-    answer: "Yes. CompressX is free to use, with no sign-up required.",
+    question: "Is Pixquish free?",
+    answer: "Yes. Pixquish is free to use, with no sign-up required.",
   },
 ];
 
@@ -104,7 +104,7 @@ export function Faq() {
             Frequently asked questions
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            Everything you need to know about CompressX — compression, resizing,
+            Everything you need to know about Pixquish — compression, resizing,
             and privacy.
           </p>
         </motion.div>

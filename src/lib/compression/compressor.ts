@@ -1,4 +1,4 @@
-// CompressX compression engine — Canvas-based encoding with smart target-size search.
+// Pixquish compression engine — Canvas-based encoding with smart target-size search.
 
 import {
   analyzeImage,

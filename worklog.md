@@ -84,3 +84,93 @@ Stage Summary:
 - 50 KB target test: 48.7 KB result (97.4% of target) vs old algorithm's typical 60-80% of target
 - Max Compress mode still guarantees output ≤ target (enforceTarget preserved)
 - UI, layout, and all existing functionality fully intact; lint clean
+
+---
+Task ID: 3
+Agent: Main
+Task: Complete Brand Renaming from "CompressX" to "Pixquish" across the entire codebase (text, metadata, SEO, PWA, config, code references, variables) with zero UI/UX alteration.
+
+Work Log:
+- Audited entire codebase via case-insensitive grep for "compressx" — found 24 files with references (src/components/, src/lib/compression/, src/types/, src/hooks/, src/app/, public/)
+- Read all affected files to understand context (user-facing text, metadata, JSON-LD, inline scripts, variable names, URLs, code comments)
+- Decision: did a COMPLETE rename including directory + file rename (not just text), since the user said "Complete Brand Renaming" and "lowercase 'compressx' becomes 'pixquish' for URLs/variables"
+- Renamed: src/components/compressx/ → src/components/pixquish/ (25 component files)
+- Renamed: src/types/compressx.ts → src/types/pixquish.ts
+- Updated all absolute import paths: @/components/compressx/* → @/components/pixquish/* (in layout.tsx, page.tsx, navbar.tsx cross-import)
+- Global text replacement "CompressX" → "Pixquish" in user-facing UI:
+  • navbar.tsx (logo text)
+  • footer.tsx (logo text + copyright "© 2026 Pixquish. All rights reserved.")
+  • faq.tsx (7 FAQ entries + subtitle "Everything you need to know about Pixquish")
+  • features.tsx ("Pixquish finds the closest quality setting")
+  • guide.tsx (6 descriptions + "How to use Pixquish" heading + download filename note "originalname-pixquish.webp")
+  • quality-slider.tsx ("Switch to Auto to let Pixquish decide")
+  • target-size-selector.tsx ("Pixquish binary-searches quality")
+  • privacy/page.tsx ("refers to Pixquish", "refers to Pixquish, accessible from")
+- SEO/Metadata updates in layout.tsx:
+  • Title default + template ("Pixquish — Free Online Image Compressor..." / "%s · Pixquish")
+  • authors, creator, publisher, applicationName → "Pixquish"
+  • OpenGraph title, siteName → "Pixquish"
+  • OG image alt text → "Pixquish — Free online image compressor..."
+  • Twitter card title → "Pixquish..."
+  • siteUrl fallback → "https://pixquish.app" (was compressx.app)
+  • Comment updated: "falls back to pixquish.app"
+- JSON-LD structured data in layout.tsx:
+  • SoftwareApplication.name → "Pixquish"
+  • FAQPage: all 4 brand-mentioning Q&A pairs updated (Are images uploaded, How does Pixquish choose quality, target file size, visual quality, Does Pixquish work on mobile, Is Pixquish free)
+- Inline pre-hydration script in layout.tsx (variable rename — CRITICAL consistency):
+  • window.__compressx_pending → window.__pixquish_pending
+  • window.__compressx_hydrated → window.__pixquish_hydrated
+  • data-compressx-upload → data-pixquish-upload
+- upload-card.tsx (matching variable rename to keep contract with inline script):
+  • inputId "compressx-upload" → "pixquish-upload"
+  • window.__compressx_pending → window.__pixquish_pending
+  • window.__compressx_hydrated → window.__pixquish_hydrated
+  • data-compressx-upload="" → data-pixquish-upload=""
+- Download filename suffix: ${base}-compressx.${ext} → ${base}-pixquish.${ext} (result-card.tsx, image-workspace.tsx)
+- localStorage key: "compressx:format" → "pixquish:format" (use-workspace.ts)
+- sitemap.ts + robots.ts: 'https://compressx.app' → 'https://pixquish.app'
+- manifest.json: name + short_name → "Pixquish"
+- package.json: "name" field "nextjs_tailwind_shadcn_ts" → "pixquish"
+- Code comments updated to "Pixquish" in:
+  • src/types/pixquish.ts ("Pixquish – type definitions...")
+  • src/lib/compression/compressor.ts ("Pixquish compression engine...")
+  • src/lib/compression/resizer.ts ("Pixquish Image Resizer...")
+  • src/lib/compression/types.ts ("Pixquish compression engine — shared types")
+  • src/hooks/use-compression-worker.ts ("Provides a handle to the Pixquish image-compression Web Worker")
+- Left the Vercel deployment URL (image-compressorx-z66r.vercel.app) in privacy page as-is — it's a real auto-generated deployment URL (contains "compressorx" not "compressx"); changing it to a fictional URL would break the link
+- Verified image asset file names (og-image.png, guide/*.png, favicon.svg, logo.svg) contain NO "compressx" in their filenames or content — no asset renames needed
+- Ran `bun run lint` → clean (exit 0, zero errors)
+- Verified dev server healthy: GET / → HTTP 200, all compiles successful
+- Verified SEO endpoints:
+  • /manifest.json → "name": "Pixquish — Free Online Image Compressor", "short_name": "Pixquish" ✓
+  • /robots.txt → Sitemap: https://pixquish.app/sitemap.xml ✓
+  • /sitemap.xml → https://pixquish.app ✓
+  • <title> → "Pixquish — Free Online Image Compressor & Resizer | JPG, PNG, WebP, AVIF" ✓
+- Verified via Agent Browser (end-to-end):
+  • Page title: "Pixquish — Free Online Image Compressor & Resizer | JPG, PNG, WebP, AVIF" ✓
+  • Visible text: 13 "Pixquish" mentions, 0 "CompressX" ✓
+  • Server-rendered HTML: 49 "Pixquish", 0 "CompressX" ✓
+  • Navbar logo: "Pixquish" ✓
+  • Footer copyright: "© 2026 Pixquish. All rights reserved." ✓
+  • Guide heading: "How to use Pixquish" ✓
+  • FAQ buttons: "How does Pixquish choose image quality?", "Does Pixquish work on mobile?", "Is Pixquish free?" ✓
+  • Theme toggle works (dark → light, className="light") ✓
+  • Tab switch works (Compress ↔ Resize; Resize heading "Resize images to any dimension" appeared) ✓
+  • Upload works (uploaded og-image.png via data-pixquish-upload input; file added to list) ✓
+  • Compression works (clicked Compress; result showed "78.0 KB" with "saved" text) ✓
+  • Zero page errors, zero console errors ✓
+  • Renamed internal variables (data-pixquish-upload, __pixquish_pending, __pixquish_hydrated, pixquish:format localStorage key) all work together end-to-end ✓
+- Cleaned up verification screenshot (pixquish-brand-verify.png) to keep project tidy
+- Final grep confirms zero "compressx" references remain in src/ or public/
+
+Stage Summary:
+- Complete brand renaming from "CompressX" to "Pixquish" across entire codebase
+- 100% UI/UX preserved — zero layout/styling/color/functionality changes; only text, brand identity, metadata, variables, URLs, comments, and config replaced
+- Directory + file rename: src/components/compressx/ → src/components/pixquish/, src/types/compressx.ts → src/types/pixquish.ts (with all import paths updated)
+- All SEO metadata (title, description, OG, Twitter, JSON-LD SoftwareApplication + FAQPage) rebranded to Pixquish
+- PWA manifest name/short_name → Pixquish
+- sitemap.ts + robots.ts URLs → https://pixquish.app
+- package.json name field → "pixquish"
+- Internal variable/identifier rename (data-pixquish-upload, __pixquish_pending, __pixquish_hydrated, pixquish:format) — consistent across layout.tsx inline script and upload-card.tsx component
+- Download filename suffix → "-pixquish"
+- Lint clean, dev server healthy (HTTP 200), all interactions verified via Agent Browser (theme toggle, tab switch, upload, compress all working)

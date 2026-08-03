@@ -47,7 +47,7 @@ const FEATURES: Feature[] = [
     icon: Target,
     title: "Target File Size",
     description:
-      "Pick an exact output size and CompressX finds the closest quality setting via binary search.",
+      "Pick an exact output size and Pixquish finds the closest quality setting via binary search.",
   },
   {
     icon: Layers,

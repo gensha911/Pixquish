@@ -1,5 +1,5 @@
 /**
- * CompressX – type definitions for the image compression workspace.
+ * Pixquish – type definitions for the image compression workspace.
  *
  * These types describe every piece of state the workspace hook manages,
  * the settings the user can tweak, and the message protocol spoken between

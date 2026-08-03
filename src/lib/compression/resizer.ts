@@ -1,4 +1,4 @@
-// CompressX Image Resizer — Canvas-based resize with presets and fit modes.
+// Pixquish Image Resizer — Canvas-based resize with presets and fit modes.
 
 export type FitMode = "cover" | "contain" | "stretch";
 export type ContainBgMode = "color" | "blur";

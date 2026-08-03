@@ -1,21 +1,40 @@
 {
-  "name": "Pixquish — Free Online Image Compressor",
+  "name": "Pixquish — Free Online Image Compressor & Resizer",
   "short_name": "Pixquish",
-  "description": "Compress JPG, PNG, WebP, and AVIF images for free. 100% browser-based, no upload required.",
+  "description": "Compress and resize JPG, PNG, WebP, and AVIF images for free. 100% browser-based, no upload required. Reduce file sizes by up to 80% while preserving quality.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0b0f0e",
   "theme_color": "#0b1a17",
   "orientation": "any",
+  "categories": ["utilities", "multimedia", "productivity", "photography"],
+  "keywords": [
+    "image compressor",
+    "image resizer",
+    "compress jpg",
+    "compress png",
+    "compress webp",
+    "compress avif",
+    "resize image",
+    "image optimizer",
+    "photo compressor",
+    "reduce image size"
+  ],
   "icons": [
     {
       "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["utilities", "multimedia", "productivity"],
   "lang": "en",
   "dir": "ltr"
 }

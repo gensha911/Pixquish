@@ -328,6 +328,41 @@ const breadcrumbLd = {
   ],
 };
 
+// Declares Pixquish as a brand entity to Google. Helps with Knowledge Graph
+// panel eligibility and improves semantic understanding of the site.
+const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Pixquish",
+  url: siteUrl,
+  logo: `${siteUrl}/og-image.png`,
+  description:
+    "Pixquish is a free online image compressor and resizer. Compress and resize JPG, PNG, WebP, and AVIF images entirely in the browser — no uploads, no server-side processing.",
+  sameAs: ["https://github.com/gensha911"],
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer support",
+    email: "gensha911@gmail.com",
+    url: `${siteUrl}/privacy`,
+  },
+};
+
+// WebSite schema declares the site entity and enables sitelinks eligibility.
+const websiteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Pixquish",
+  url: siteUrl,
+  description:
+    "Free online image compressor and resizer. Compress JPG, PNG, WebP, and AVIF by up to 80% in your browser. No upload, no sign-up.",
+  inLanguage: "en",
+  publisher: {
+    "@type": "Organization",
+    name: "Pixquish",
+    url: siteUrl,
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -364,6 +399,14 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
         />
         {/* Pre-hydration listener: captures file selections before React attaches onChange.
             This fixes the issue where the file dialog opens (via native label-for)

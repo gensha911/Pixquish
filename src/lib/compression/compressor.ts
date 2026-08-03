@@ -422,9 +422,130 @@ const QUALITY_CEILING = 0.95;
  *  Kept above 0.01 so we never produce a completely degenerate image. */
 const AGGRESSIVE_QUALITY_FLOOR = 0.05;
 
-/** Improved binary search over quality (and progressively over scale) to
- *  approach a target byte size as closely as possible WITHOUT unnecessary
- *  over-compression.
+/** Binary search over SCALE for lossless formats (PNG).
+ *
+ *  Since quality has no effect on lossless output, the only lever is
+ *  resolution. PNG byte size is monotonic in scale (larger image = larger
+ *  file), so a continuous binary search over scale converges precisely to
+ *  the target from below — finding the LARGEST scale that still fits,
+ *  instead of overshooting to a much smaller file.
+ *
+ *  The previous implementation walked a coarse discrete ladder
+ *  (0.9, 0.85, …, 0.15, 0.1), which for a 2.3 MB PNG targeting 50 KB
+ *  would jump from ~52 KB (scale 0.15, over) straight to ~23 KB (scale
+ *  0.1, under) — landing at 29 KB, 21 KB below the target, with a
+ *  needlessly tiny 141×77 output. The continuous search below instead
+ *  bisects the [0.1, 0.15] range and lands within ~1 KB of 50 KB at a far
+ *  larger resolution. */
+async function searchLosslessByScale(
+  source: CanvasImageSource,
+  origW: number,
+  origH: number,
+  format: string,
+  target: number,
+  sFloor: number,
+  onProgress?: (p: number) => void,
+  enforceTarget = false,
+): Promise<SearchOutcome> {
+  let bestUnder: EncodeCandidate | null = null;
+  let bestAbove: EncodeCandidate | null = null;
+  const report = (f: number) => onProgress?.(f);
+
+  const isNearIdeal = (c: EncodeCandidate | null): boolean =>
+    !!c && c.blob.size >= target * TARGET_PROXIMITY && c.blob.size <= target;
+
+  // ── Phase 1: full-resolution baseline. If it already fits, done. ──
+  const baseline = await encode(source, origW, origH, 1, format, 1);
+  report(0.15);
+  if (baseline) {
+    if (baseline.blob.size <= target) {
+      report(0.95);
+      return { best: baseline, met: true };
+    }
+    bestAbove = baseline;
+  }
+
+  // ── Phase 2: coarse probe ladder to find the bracket. ──
+  // hiScale is over target (=1 from baseline). Find loScale (under target)
+  // by probing a decreasing ladder, then bisect between them in Phase 3.
+  const minScale = enforceTarget ? 0.03 : sFloor;
+  const probeScales = [0.75, 0.5, 0.35, 0.25, 0.18, 0.13, 0.1, 0.07, 0.05, 0.03]
+    .filter((s) => s >= minScale);
+  let loScale = -1;
+  let hiScale = 1;
+
+  for (let pi = 0; pi < probeScales.length; pi++) {
+    const s = probeScales[pi];
+    const cand = await encode(source, origW, origH, s, format, 1);
+    report(0.15 + 0.2 * ((pi + 1) / probeScales.length));
+    if (!cand) continue;
+    if (cand.blob.size <= target) {
+      bestUnder = cand; // first under-target probe = bracket lower bound
+      loScale = s;
+      break;
+    } else {
+      bestAbove = pickSmallerAbove(bestAbove, cand);
+      hiScale = s;
+    }
+    await yieldToMain();
+  }
+
+  // Couldn't find any under-target scale at the probes.
+  if (loScale < 0) {
+    if (enforceTarget) {
+      // Last resort: tiny scale.
+      const lastResort = await encode(source, origW, origH, 0.02, format, 1);
+      report(0.85);
+      if (lastResort && lastResort.blob.size <= target) {
+        bestUnder = lastResort;
+        loScale = 0.02;
+        hiScale = 0.03;
+      }
+    }
+    if (!bestUnder) {
+      report(1);
+      return {
+        best: bestAbove,
+        met: false,
+        note: `Couldn't reach ${formatBytes(target)} in lossless format. Consider a lossy format (WebP/JPG) or a larger target.`,
+      };
+    }
+  }
+
+  // ── Phase 3: continuous binary search between loScale (under) and
+  //    hiScale (over). Converges to the LARGEST scale that fits under
+  //    target — maximising resolution while respecting the cap. ──
+  const maxIters = 16;
+  for (let i = 0; i < maxIters; i++) {
+    const mid = (loScale + hiScale) / 2;
+    if (hiScale - loScale < 0.003) break;
+    const cand = await encode(source, origW, origH, mid, format, 1);
+    report(0.55 + 0.4 * ((i + 1) / maxIters));
+    if (!cand) continue;
+    if (cand.blob.size <= target) {
+      bestUnder = pickBetterUnder(bestUnder, cand, target);
+      loScale = mid;
+      if (isNearIdeal(bestUnder)) break;
+    } else {
+      bestAbove = pickSmallerAbove(bestAbove, cand);
+      hiScale = mid;
+    }
+    await yieldToMain();
+  }
+
+  report(0.99);
+  const ratio = bestUnder.blob.size / target;
+  const sPct = Math.round(bestUnder.scale * 100);
+  const note =
+    ratio >= TARGET_PROXIMITY
+      ? `Target ${formatBytes(target)} reached precisely (scale ${sPct}%).`
+      : `Target ${formatBytes(target)} reached (scale ${sPct}%, lossless resize).`;
+  return { best: bestUnder, met: true, note };
+}
+
+/** Binary search over quality (and progressively over scale) to approach a
+ *  target byte size as closely as possible WITHOUT unnecessary
+ *  over-compression. Used for LOSSY formats (JPEG, WebP, AVIF).
  *
  *  Design goals (Max Compress + target size):
  *  1. Converge as close as possible to the target from below — never drop
@@ -435,7 +556,11 @@ const AGGRESSIVE_QUALITY_FLOOR = 0.05;
  *  When `enforceTarget` is true (Max Compress mode), the function guarantees
  *  the returned blob will be at or under the target — even if that requires
  *  quality reduction and downscaling. The search still maximises quality
- *  within that constraint. */
+ *  within that constraint.
+ *
+ *  Lossless formats (PNG) delegate to `searchLosslessByScale`, which
+ *  performs a continuous binary search over scale instead of quality
+ *  (since the quality parameter has no effect on lossless output). */
 async function searchTargetSize(
   source: CanvasImageSource,
   origW: number,
@@ -459,13 +584,23 @@ async function searchTargetSize(
   const isNearIdeal = (c: EncodeCandidate | null): boolean =>
     !!c && c.blob.size >= target * TARGET_PROXIMITY && c.blob.size <= target;
 
+  // Lossless formats (PNG): quality has no effect — delegate to a dedicated
+  // scale binary search that converges precisely to the target (the largest
+  // scale that fits under the cap, instead of overshooting to a tiny file).
+  if (skipQualitySearch) {
+    return searchLosslessByScale(
+      source, origW, origH, format, target, sFloor, onProgress, enforceTarget,
+    );
+  }
+
+  const slow = isSlowFormat(format);
+
   // ─────────────────────────────────────────────────────────────────────
   // Phase 1: quality binary search at FULL resolution (scale = 1).
   // This is the highest-fidelity path — we only downscale if quality alone
   // cannot reach the target.
   // ─────────────────────────────────────────────────────────────────────
-  if (!skipQualitySearch) {
-    const slow = isSlowFormat(format);
+  {
     // Finer granularity than before: 12 steps for fast formats gives
     // ~0.0007 quality precision (vs 0.0019 at 9 steps). AVIF stays lean.
     let lo = floor;
@@ -535,18 +670,6 @@ async function searchTargetSize(
       report(0.62);
       return { best: bestUnder, met: true };
     }
-  } else {
-    // Lossless (PNG): quality has no effect, so a single full-res encode
-    // establishes the baseline. Only downscaling can reduce size.
-    const baseline = await encode(source, origW, origH, 1, format, 1);
-    if (baseline) {
-      if (baseline.blob.size <= target) {
-        report(0.55);
-        return { best: baseline, met: true };
-      }
-      bestAbove = baseline;
-    }
-    report(0.1);
   }
 
   // ─────────────────────────────────────────────────────────────────────
@@ -558,66 +681,47 @@ async function searchTargetSize(
   // midpoint). We also stop early if a near-ideal result is found, rather
   // than continuing to shrink unnecessarily.
   // ─────────────────────────────────────────────────────────────────────
-  const slow = isSlowFormat(format);
-  const allScales = skipQualitySearch
-    ? [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.4, 0.3, 0.2, 0.15, 0.1]
-    : slow
-      ? [0.85, 0.75, 0.65, 0.55, 0.45]
-      : [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6];
+  const allScales = slow
+    ? [0.85, 0.75, 0.65, 0.55, 0.45]
+    : [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6];
   const scales = allScales.filter((s) => s >= sFloor);
 
   for (let si = 0; si < scales.length; si++) {
     const scale = scales[si];
     const frac = 0.62 + 0.25 * ((si + 1) / scales.length);
 
-    if (skipQualitySearch) {
-      const cand = await encode(source, origW, origH, scale, format, 1);
-      report(frac);
+    // Binary search quality at this scale, then refine upward.
+    let lo = floor;
+    let hi = QUALITY_CEILING;
+    const stepsPerScale = slow ? 4 : 8;
+    for (let i = 0; i < stepsPerScale; i++) {
+      const mid = (lo + hi) / 2;
+      const cand = await encode(source, origW, origH, scale, format, mid);
+      report(frac - 0.03 + 0.03 * ((i + 1) / stepsPerScale));
       if (!cand) continue;
       if (cand.blob.size <= target) {
         bestUnder = pickBetterUnder(bestUnder, cand, target);
-        // Near-ideal lossless result — stop shrinking.
-        if (isNearIdeal(bestUnder)) {
-          report(0.9);
-          return { best: bestUnder, met: true };
-        }
+        lo = mid;
+        if (isNearIdeal(bestUnder)) break;
       } else {
         bestAbove = pickSmallerAbove(bestAbove, cand);
+        hi = mid;
       }
-    } else {
-      // Binary search quality at this scale, then refine upward.
-      let lo = floor;
-      let hi = QUALITY_CEILING;
-      const stepsPerScale = slow ? 4 : 8;
-      for (let i = 0; i < stepsPerScale; i++) {
-        const mid = (lo + hi) / 2;
-        const cand = await encode(source, origW, origH, scale, format, mid);
-        report(frac - 0.03 + 0.03 * ((i + 1) / stepsPerScale));
-        if (!cand) continue;
-        if (cand.blob.size <= target) {
-          bestUnder = pickBetterUnder(bestUnder, cand, target);
-          lo = mid;
-          if (isNearIdeal(bestUnder)) break;
-        } else {
-          bestAbove = pickSmallerAbove(bestAbove, cand);
-          hi = mid;
-        }
-        await yieldToMain();
-      }
+      await yieldToMain();
+    }
 
-      // Refine upward at this scale to maximise quality under target.
-      if (bestUnder && bestUnder.scale === scale) {
-        bestUnder = await refineAroundBest(
-          source, origW, origH, scale, format, bestUnder, bestUnder.quality, QUALITY_CEILING, target, report, frac, frac + 0.02,
-        );
-      }
+    // Refine upward at this scale to maximise quality under target.
+    if (bestUnder && bestUnder.scale === scale) {
+      bestUnder = await refineAroundBest(
+        source, origW, origH, scale, format, bestUnder, bestUnder.quality, QUALITY_CEILING, target, report, frac, frac + 0.02,
+      );
+    }
 
-      // If we have a near-ideal result, stop shrinking — further scales
-      // would only reduce resolution without meaningful size gain.
-      if (isNearIdeal(bestUnder)) {
-        report(0.9);
-        return { best: bestUnder, met: true };
-      }
+    // If we have a near-ideal result, stop shrinking — further scales
+    // would only reduce resolution without meaningful size gain.
+    if (isNearIdeal(bestUnder)) {
+      report(0.9);
+      return { best: bestUnder, met: true };
     }
   }
 
@@ -647,50 +751,38 @@ async function searchTargetSize(
       const scale = aggressiveScales[si];
       const frac = 0.92 + 0.06 * ((si + 1) / aggressiveScales.length);
 
-      if (skipQualitySearch) {
-        const cand = await encode(source, origW, origH, scale, format, 1);
+      // Wider quality range than before [floor, 0.6] with refinement.
+      let lo = AGGRESSIVE_QUALITY_FLOOR;
+      let hi = 0.6;
+      const aggressiveSteps = slow ? 4 : 7;
+      for (let i = 0; i < aggressiveSteps; i++) {
+        const mid = (lo + hi) / 2;
+        const cand = await encode(source, origW, origH, scale, format, mid);
         report(frac);
         if (!cand) continue;
         if (cand.blob.size <= target) {
           bestUnder = pickBetterUnder(bestUnder, cand, target);
-          if (isNearIdeal(bestUnder)) break;
+          lo = mid;
         } else {
           bestAbove = pickSmallerAbove(bestAbove, cand);
+          hi = mid;
         }
-      } else {
-        // Wider quality range than before [floor, 0.6] with refinement.
-        let lo = AGGRESSIVE_QUALITY_FLOOR;
-        let hi = 0.6;
-        const aggressiveSteps = slow ? 4 : 7;
-        for (let i = 0; i < aggressiveSteps; i++) {
-          const mid = (lo + hi) / 2;
-          const cand = await encode(source, origW, origH, scale, format, mid);
-          report(frac);
-          if (!cand) continue;
-          if (cand.blob.size <= target) {
-            bestUnder = pickBetterUnder(bestUnder, cand, target);
-            lo = mid;
-          } else {
-            bestAbove = pickSmallerAbove(bestAbove, cand);
-            hi = mid;
-          }
-          await yieldToMain();
-        }
-
-        // Refine upward at this aggressive scale to recover quality.
-        if (bestUnder && bestUnder.scale === scale) {
-          bestUnder = await refineAroundBest(
-            source, origW, origH, scale, format, bestUnder, bestUnder.quality, 0.6, target, report, frac, frac + 0.005,
-          );
-        }
-
-        if (isNearIdeal(bestUnder)) break;
+        await yieldToMain();
       }
+
+      // Refine upward at this aggressive scale to recover quality.
+      if (bestUnder && bestUnder.scale === scale) {
+        bestUnder = await refineAroundBest(
+          source, origW, origH, scale, format, bestUnder, bestUnder.quality, 0.6, target, report, frac, frac + 0.005,
+        );
+      }
+
+      if (isNearIdeal(bestUnder)) break;
     }
 
     // Last resort: extremely tiny scale.
     const lastResort = await encode(
-      source, origW, origH, 0.02, format, skipQualitySearch ? 1 : AGGRESSIVE_QUALITY_FLOOR,
+      source, origW, origH, 0.02, format, AGGRESSIVE_QUALITY_FLOOR,
     );
     if (lastResort) {
       if (lastResort.blob.size <= target) {

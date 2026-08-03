@@ -103,7 +103,7 @@ export function ResultCard({ result, fileName, className }: ResultCardProps) {
     a.href = result.url;
     const base = fileName.replace(/\.[^.]+$/, "");
     const ext = shortFormat(result.format).toLowerCase();
-    a.download = `${base}-compressx.${ext}`;
+    a.download = `${base}-pixquish.${ext}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

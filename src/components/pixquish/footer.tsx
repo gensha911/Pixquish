@@ -51,7 +51,7 @@ export function Footer({ className }: { className?: string }) {
                 <Gauge className="size-4 text-white" />
               </span>
               <span className="font-semibold tracking-tight text-foreground">
-                CompressX
+                Pixquish
               </span>
             </a>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
@@ -87,7 +87,7 @@ export function Footer({ className }: { className?: string }) {
 
         {/* Bottom bar */}
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border/60 py-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} CompressX. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Pixquish. All rights reserved.</p>
           <p>Made with care · 100% client-side</p>
         </div>
       </div>

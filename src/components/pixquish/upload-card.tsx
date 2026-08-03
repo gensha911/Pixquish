@@ -5,7 +5,7 @@ import { UploadCloud, ImageIcon, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ACCEPT_ATTR } from "@/lib/compression";
 
-const inputId = React.useId ? undefined : "compressx-upload";
+const inputId = React.useId ? undefined : "pixquish-upload";
 
 interface UploadCardProps {
   onFiles: (files: FileList | File[]) => void;
@@ -63,12 +63,12 @@ export function UploadCard({
   // then drain any files that were selected before hydration completed.
   React.useEffect(() => {
     if (typeof window !== "undefined") {
-      const pending = (window as unknown as Record<string, unknown>).__compressx_pending as File[] | undefined;
+      const pending = (window as unknown as Record<string, unknown>).__pixquish_pending as File[] | undefined;
       if (pending?.length) {
         onFilesRef.current(pending);
         pending.length = 0;
       }
-      (window as unknown as Record<string, unknown>).__compressx_hydrated?.();
+      (window as unknown as Record<string, unknown>).__pixquish_hydrated?.();
     }
   }, []);
 
@@ -88,7 +88,7 @@ export function UploadCard({
         className="sr-only"
         onChange={handleChange}
         aria-label="Upload images"
-        data-compressx-upload=""
+        data-pixquish-upload=""
       />
       {/* Use <label> so the file picker works immediately even before React hydrates */}
       <label

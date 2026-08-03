@@ -71,7 +71,7 @@ export function QualitySlider({
           </>
         ) : (
           <span>
-            Manual quality locked at {display}%. Switch to Auto to let CompressX
+            Manual quality locked at {display}%. Switch to Auto to let Pixquish
             decide per image.
           </span>
         )}

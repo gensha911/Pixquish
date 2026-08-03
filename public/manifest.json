@@ -1,6 +1,6 @@
 {
-  "name": "CompressX — Free Online Image Compressor",
-  "short_name": "CompressX",
+  "name": "Pixquish — Free Online Image Compressor",
+  "short_name": "Pixquish",
   "description": "Compress JPG, PNG, WebP, and AVIF images for free. 100% browser-based, no upload required.",
   "start_url": "/",
   "display": "standalone",

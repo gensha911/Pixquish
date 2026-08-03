@@ -122,7 +122,7 @@ export function TargetSizeSelector({
 
       <p className="text-xs text-muted-foreground">
         {value !== null
-          ? "CompressX binary-searches quality to hit your target without harming visuals."
+          ? "Pixquish binary-searches quality to hit your target without harming visuals."
           : "Optional — pick an exact output size and the engine finds the closest match."}
       </p>
     </div>

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Gauge, ShieldCheck } from "lucide-react";
-import { ThemeToggle } from "@/components/compressx/theme-toggle";
+import { ThemeToggle } from "@/components/pixquish/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -33,7 +33,7 @@ export function Navbar({ className }: { className?: string }) {
             <Gauge className="size-4 text-white" />
           </span>
           <span className="font-semibold tracking-tight text-foreground">
-            CompressX
+            Pixquish
           </span>
         </a>
 

@@ -33,7 +33,7 @@ export interface WorkspaceControls {
   targetSize: number | null; // null = off
 }
 
-const FORMAT_STORAGE_KEY = "compressx:format";
+const FORMAT_STORAGE_KEY = "pixquish:format";
 
 const VALID_FORMATS = ["original", "auto", "image/webp", "image/avif", "image/jpeg", "image/png"];
 

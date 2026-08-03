@@ -1,23 +1,23 @@
 import dynamic from "next/dynamic";
-import { Navbar } from "@/components/compressx/navbar";
-import { Hero } from "@/components/compressx/hero";
-import { ToolSwitcher } from "@/components/compressx/tool-switcher";
-import { Footer } from "@/components/compressx/footer";
+import { Navbar } from "@/components/pixquish/navbar";
+import { Hero } from "@/components/pixquish/hero";
+import { ToolSwitcher } from "@/components/pixquish/tool-switcher";
+import { Footer } from "@/components/pixquish/footer";
 
 const HowItWorks = dynamic(
-  () => import("@/components/compressx/how-it-works").then((m) => m.HowItWorks),
+  () => import("@/components/pixquish/how-it-works").then((m) => m.HowItWorks),
 );
 
 const Features = dynamic(
-  () => import("@/components/compressx/features").then((m) => m.Features),
+  () => import("@/components/pixquish/features").then((m) => m.Features),
 );
 
 const Faq = dynamic(
-  () => import("@/components/compressx/faq").then((m) => m.Faq),
+  () => import("@/components/pixquish/faq").then((m) => m.Faq),
 );
 
 const Guide = dynamic(
-  () => import("@/components/compressx/guide").then((m) => m.Guide),
+  () => import("@/components/pixquish/guide").then((m) => m.Guide),
 );
 
 export default function Home() {

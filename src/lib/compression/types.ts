@@ -1,4 +1,4 @@
-// CompressX compression engine — shared types
+// Pixquish compression engine — shared types
 
 export type CompressionMode = "quality" | "balanced" | "max";
 

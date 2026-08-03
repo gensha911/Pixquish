@@ -33,7 +33,7 @@ const STEPS: GuideStep[] = [
     icon: Upload,
     title: "Upload Your Images",
     description:
-      "Drag and drop images directly onto the upload area, or click to browse your files. CompressX accepts JPEG, PNG, WebP, and AVIF formats. You can upload multiple images at once for batch processing.",
+      "Drag and drop images directly onto the upload area, or click to browse your files. Pixquish accepts JPEG, PNG, WebP, and AVIF formats. You can upload multiple images at once for batch processing.",
     screenshot: "/guide/03-uploaded.png",
     highlights: [
       "Drag and drop zone supports multiple files",
@@ -61,7 +61,7 @@ const STEPS: GuideStep[] = [
     icon: Target,
     title: "Set a Target File Size",
     description:
-      "Need a file under a specific size? Click one of the preset buttons (20 KB, 50 KB, 100 KB, 200 KB, 500 KB, 1 MB) or type a custom value. CompressX uses an intelligent binary search across quality levels to hit your target as closely as possible.",
+      "Need a file under a specific size? Click one of the preset buttons (20 KB, 50 KB, 100 KB, 200 KB, 500 KB, 1 MB) or type a custom value. Pixquish uses an intelligent binary search across quality levels to hit your target as closely as possible.",
     screenshot: "/guide/04-controls.png",
     highlights: [
       "Quick presets from 20 KB to 1 MB",
@@ -117,7 +117,7 @@ const STEPS: GuideStep[] = [
     icon: LayoutGrid,
     title: "Smart Multi-Step Scaling",
     description:
-      "When shrinking images significantly, CompressX uses a multi-step downscaling algorithm with high-quality smoothing. This produces sharper results than a single-step resize, especially for photos with fine detail.",
+      "When shrinking images significantly, Pixquish uses a multi-step downscaling algorithm with high-quality smoothing. This produces sharper results than a single-step resize, especially for photos with fine detail.",
     highlights: [
       "Multi-step halving for sharp downscaling",
       "High-quality image smoothing enabled",
@@ -149,7 +149,7 @@ const STEPS: GuideStep[] = [
     highlights: [
       "Individual download button per image",
       "Download All grabs everything in one click",
-      "Compressed files named: originalname-compressx.webp",
+      "Compressed files named: originalname-pixquish.webp",
       "Resized files named: originalname-1920x1080.jpg",
       "Original images are never modified",
     ],
@@ -158,7 +158,7 @@ const STEPS: GuideStep[] = [
     icon: Smartphone,
     title: "Works on Any Device",
     description:
-      "CompressX is fully responsive and works on phones, tablets, and desktops. On mobile, controls stack vertically for easy thumb access. Touch gestures are fully supported for the comparison slider and zooming.",
+      "Pixquish is fully responsive and works on phones, tablets, and desktops. On mobile, controls stack vertically for easy thumb access. Touch gestures are fully supported for the comparison slider and zooming.",
     screenshot: "/guide/08-mobile.png",
     highlights: [
       "Fully responsive layout for all screen sizes",
@@ -263,7 +263,7 @@ export function Guide() {
             User Guide
           </span>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl md:text-5xl">
-            How to use CompressX
+            How to use Pixquish
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
             A step-by-step walkthrough of compressing and resizing your images.

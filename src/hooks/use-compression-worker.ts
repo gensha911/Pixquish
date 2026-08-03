@@ -40,7 +40,7 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024;
 // ---------------------------------------------------------------------------
 
 /**
- * Provides a handle to the CompressX image-compression Web Worker.
+ * Provides a handle to the Pixquish image-compression Web Worker.
  *
  * The worker is lazily instantiated on first use and automatically
  * terminated when the calling component unmounts.

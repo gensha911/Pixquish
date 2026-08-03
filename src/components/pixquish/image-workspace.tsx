@@ -181,7 +181,7 @@ export function ImageWorkspace() {
       a.href = f.result.url;
       const base = f.file.name.replace(/\.[^.]+$/, "");
       const ext = f.result.format.replace("image/", "").replace("jpeg", "jpg");
-      a.download = `${base}-compressx.${ext}`;
+      a.download = `${base}-pixquish.${ext}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

@@ -16,6 +16,8 @@ import {
   MoveHorizontal,
   Grid3x3,
   Wand2,
+  Sparkles,
+  Gauge,
 } from "lucide-react";
 import {
   Select,
@@ -149,6 +151,35 @@ export function ResizeControls({
   };
 
   const isUsingScale = options.scale !== null;
+
+  // ── Quality control logic ──────────────────────────────────────────────
+  // Quality slider is only meaningful for lossy formats. PNG is lossless so
+  // the slider would have no effect. When format is "original", quality still
+  // applies if the source is JPEG/WebP/AVIF (the common case for photos).
+  const isPngOutput = options.format === "image/png";
+  const showQualityControl = !isPngOutput;
+
+  // Map internal quality (0–1, or null=auto) ↔ slider value (0–100).
+  // Slider convention: 100 = Auto (visually lossless), 99–0 = manual quality.
+  // This lets users push to true max if they want, while defaulting to a smart auto.
+  const qualitySliderValue = options.quality === null ? 100 : Math.round(options.quality * 100);
+
+  const qualityLabel = options.quality === null
+    ? "Auto (high)"
+    : `${qualitySliderValue}%`;
+
+  const qualityHint = options.quality === null
+    ? "Auto keeps file size reasonable with no visible artifacts. Slide left for smaller files, right for max quality."
+    : qualitySliderValue >= 95
+      ? "Near-lossless quality. File size will be larger."
+      : qualitySliderValue >= 80
+        ? "High quality — good balance of size and clarity."
+        : "Smaller file. Some visible artifacts may appear in smooth areas.";
+
+  const onQualitySliderChange = (val: number) => {
+    // 100 = Auto (null). Anything below 100 is a manual quality override.
+    onChange({ quality: val >= 100 ? null : val / 100 });
+  };
 
   const hasPreset =
     !isUsingScale &&
@@ -595,6 +626,88 @@ export function ResizeControls({
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Quality control — only relevant for lossy formats */}
+        {showQualityControl && (
+          <div className="space-y-2.5 rounded-lg border border-border/60 bg-muted/30 p-3">
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <Gauge className="size-3" />
+                Quality
+              </label>
+              <span className="text-[11px] font-medium tabular-nums text-foreground">
+                {qualityLabel}
+              </span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={qualitySliderValue}
+              onChange={(e) => onQualitySliderChange(Number(e.target.value))}
+              className="h-1.5 w-full cursor-pointer accent-brand"
+              aria-label="Output quality"
+            />
+            <div className="flex justify-between text-[10px] text-muted-foreground/60">
+              <span>Smaller file</span>
+              <span>Best quality</span>
+            </div>
+            <p className="text-[10px] leading-tight text-muted-foreground/70">
+              {qualityHint}
+            </p>
+          </div>
+        )}
+
+        {/* Sharpen toggle — restores crispness lost to downscaling */}
+        <div className="space-y-2.5 rounded-lg border border-border/60 bg-muted/30 p-3">
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <Sparkles className="size-3" />
+              Sharpen
+            </label>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={options.sharpen}
+              onClick={() => onChange({ sharpen: !options.sharpen })}
+              className={cn(
+                "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                options.sharpen ? "bg-brand" : "bg-input",
+              )}
+            >
+              <span
+                className={cn(
+                  "pointer-events-none block size-4 rounded-full bg-white shadow-lg ring-0 transition-transform",
+                  options.sharpen ? "translate-x-4" : "translate-x-0",
+                )}
+              />
+            </button>
+          </div>
+          {options.sharpen && (
+            <>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-muted-foreground">Intensity</span>
+                <span className="text-[11px] tabular-nums text-foreground">
+                  {options.sharpenAmount}%
+                </span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={1}
+                value={options.sharpenAmount}
+                onChange={(e) => onChange({ sharpenAmount: Number(e.target.value) })}
+                className="h-1.5 w-full cursor-pointer accent-brand"
+                aria-label="Sharpen intensity"
+              />
+              <p className="text-[10px] leading-tight text-muted-foreground/70">
+                Counters softening from downscaling. Auto-scales with resize ratio.
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

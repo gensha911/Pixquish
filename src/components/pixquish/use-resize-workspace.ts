@@ -30,8 +30,12 @@ export const DEFAULT_RESIZE_OPTIONS: ResizeOptions = {
   containBgColor: "#000000ff",
   containBgMode: "color" as const,
   containBlur: 20,
-  sharpen: false,
-  sharpenAmount: 50,
+  // Sharpening ON by default: downscaling inherently softens images, and a
+  // light unsharp mask restores perceived crispness without looking artificial.
+  // The resizer auto-scales the sharpen amount based on downscale ratio, so
+  // this stays subtle for small resizes and kicks in harder for big downscales.
+  sharpen: true,
+  sharpenAmount: 35,
   coverOffsetX: 50,
   coverOffsetY: 50,
 };
@@ -233,8 +237,8 @@ export function useResizeWorkspace() {
 
   // Auto-resize when options change
   const optionsSig = React.useMemo(
-    () => JSON.stringify([options.width, options.height, options.scale, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.format, options.quality, options.coverOffsetX, options.coverOffsetY]),
-    [options.width, options.height, options.scale, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.format, options.quality, options.coverOffsetX, options.coverOffsetY],
+    () => JSON.stringify([options.width, options.height, options.scale, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.format, options.quality, options.sharpen, options.sharpenAmount, options.coverOffsetX, options.coverOffsetY]),
+    [options.width, options.height, options.scale, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.format, options.quality, options.sharpen, options.sharpenAmount, options.coverOffsetX, options.coverOffsetY],
   );
 
   React.useEffect(() => {

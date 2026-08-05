@@ -77,11 +77,14 @@ export interface ResizeResult {
   durationMs: number;
 }
 
-/** Quality ceiling for lossy formats (JPEG, WebP, AVIF).
- *  Keeping this just under 1.0 avoids browser encoders that round quality up
- *  to lossless at 1.0 (which can paradoxically increase file size or introduce
- *  artifacts). 0.95 is visually indistinguishable from the original. */
-const QUALITY_CEILING = 0.95;
+/** Quality ceiling for lossy formats (JPEG, WebP, AVIF) when resizing.
+ *
+ *  The Resize tab exists to change dimensions while preserving visual quality
+ *  — aggressive compression is the Compress tab's job. 0.98 keeps JPEG
+ *  artifacts essentially invisible in smooth gradient areas (sky, skin,
+ *  shadows) while staying reasonable on file size. This is deliberately high
+ *  because resize users prioritize quality over file-size reduction. */
+const QUALITY_CEILING = 0.98;
 
 /** Compute the target canvas dimensions given resize options and original size. */
 export function computeTargetDimensions(

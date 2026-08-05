@@ -1,4 +1,7 @@
 // Pixquish Image Resizer — Canvas-based resize with presets and fit modes.
+// Optimized: caches decoded bitmaps (caller-managed), always uses multi-step
+// downscale for sharp results, and applies a quality ceiling for lossy formats
+// so resize never visibly degrades quality.
 
 export type FitMode = "cover" | "contain" | "stretch";
 export type ContainBgMode = "color" | "blur";
@@ -17,7 +20,7 @@ export interface ResizeOptions {
   lockAspect: boolean;
   fit: FitMode;
   format: string; // "original" | mime type
-  quality: number | null; // null = max quality (1.0)
+  quality: number | null; // null = auto (0.95 for lossy, 1.0 for PNG)
   containBgColor: string; // hex/rgba for contain padding background
   /** Background mode for contain padding: solid color or blurred image. */
   containBgMode: ContainBgMode;
@@ -73,6 +76,12 @@ export interface ResizeResult {
   originalUrl: string;
   durationMs: number;
 }
+
+/** Quality ceiling for lossy formats (JPEG, WebP, AVIF).
+ *  Keeping this just under 1.0 avoids browser encoders that round quality up
+ *  to lossless at 1.0 (which can paradoxically increase file size or introduce
+ *  artifacts). 0.95 is visually indistinguishable from the original. */
+const QUALITY_CEILING = 0.95;
 
 /** Compute the target canvas dimensions given resize options and original size. */
 export function computeTargetDimensions(
@@ -213,57 +222,28 @@ function applyUnsharpMask(
 // Core resize
 // ---------------------------------------------------------------------------
 
-/** Fast path: native GPU-accelerated resize via createImageBitmap.
- *  Used for scale/stretch modes (no crop, no pad, no sharpen). */
-async function resizeFastPath(
-  file: File,
-  width: number,
-  height: number,
-  outputFormat: string,
-  quality: number,
-  start: number,
-  onProgress?: (p: number) => void,
-): Promise<{ bitmap: ImageBitmap; blob: Blob; durationMs: number } | null> {
-  try {
-    const resized = await createImageBitmap(file, {
-      resizeWidth: width,
-      resizeHeight: height,
-      resizeQuality: "high",
-    });
-    onProgress?.(0.6);
-    const c = document.createElement("canvas");
-    c.width = width;
-    c.height = height;
-    const cx = c.getContext("2d")!;
-    cx.drawImage(resized, 0, 0);
-    resized.close();
-    if (outputFormat === "image/jpeg") {
-      cx.globalCompositeOperation = "destination-over";
-      cx.fillStyle = "#ffffff";
-      cx.fillRect(0, 0, width, height);
-    }
-    onProgress?.(0.7);
-    const blob = await new Promise<Blob | null>((resolve) =>
-      c.toBlob(resolve, outputFormat, Math.min(1, Math.max(0, quality))),
-    );
-    if (!blob) return null;
-    onProgress?.(0.95);
-    return { bitmap: await createImageBitmap(blob), blob, durationMs: Math.round(performance.now() - start) };
-  } catch {
-    return null;
-  }
-}
-
-/** Resize a single image file according to the provided options. */
+/** Resize a single image file according to the provided options.
+ *
+ *  @param file         The source image file.
+ *  @param options      Resize options (dimensions, fit, format, etc.).
+ *  @param onProgress   Optional progress callback (0–1).
+ *  @param cachedBitmap Optional pre-decoded ImageBitmap. When provided, the
+ *                      caller owns the bitmap and is responsible for closing it.
+ *                      When omitted, this function decodes from `file` and
+ *                      closes the bitmap when done.
+ */
 export async function resizeImage(
   file: File,
   options: ResizeOptions,
   onProgress?: (p: number) => void,
+  cachedBitmap?: ImageBitmap,
 ): Promise<ResizeResult> {
   const start = performance.now();
   onProgress?.(0.1);
 
-  const bitmap = await createImageBitmap(file);
+  // Use cached bitmap if provided (caller owns lifecycle); otherwise decode.
+  const ownsBitmap = !cachedBitmap;
+  const bitmap = cachedBitmap ?? await createImageBitmap(file);
   onProgress?.(0.3);
 
   const origW = bitmap.width;
@@ -273,37 +253,14 @@ export async function resizeImage(
   onProgress?.(0.4);
 
   const outputFormat = options.format === "original" ? file.type : options.format;
-  const quality = options.quality ?? 1.0;
+  // PNG is lossless — quality is ignored by toBlob. For lossy formats, cap at
+  // 0.95 to avoid browser encoder quirks at 1.0 while staying visually lossless.
+  const quality = options.quality ?? (outputFormat === "image/png" ? 1.0 : QUALITY_CEILING);
 
-  // For scale mode, fit is irrelevant (aspect preserved automatically).
+  // For scale mode, aspect is preserved automatically — stretch is exact fit.
   const fit = options.scale !== null ? ("stretch" as const) : options.fit;
 
-  // ── Fast path: native GPU resize for scale/stretch (no crop, no pad, no sharpen) ──
-  const canUseFastPath =
-    fit === "stretch" &&
-    !options.sharpen &&
-    width > 0 && height > 0;
-
-  if (canUseFastPath) {
-    const fast = await resizeFastPath(file, width, height, outputFormat, quality, start, onProgress);
-    if (fast) {
-      bitmap.close();
-      const url = URL.createObjectURL(fast.blob);
-      const originalUrl = URL.createObjectURL(file);
-      onProgress?.(1);
-      return {
-        blob: fast.blob, url, width, height,
-        originalWidth: origW, originalHeight: origH,
-        format: outputFormat, quality,
-        size: fast.blob.size, originalSize: file.size,
-        originalUrl,
-        durationMs: fast.durationMs,
-      };
-    }
-    // Fall through to canvas path if fast path failed
-  }
-
-  // ── Standard canvas path for cover/contain/blur/sharpen ──
+  // ── Standard canvas path (always used — multi-step downscale for quality) ──
   const layout = computeDrawLayout(
     origW, origH, width, height, fit,
     options.coverOffsetX, options.coverOffsetY,
@@ -319,6 +276,8 @@ export async function resizeImage(
   ctx.imageSmoothingQuality = "high";
 
   // Multi-step downscale for sharp results when shrinking significantly.
+  // Halving each iteration preserves far more high-frequency detail than a
+  // single-step resize, especially for large downscale ratios (e.g. 4K → 480p).
   const needsDownscale = layout.intW < origW * 0.85 || layout.intH < origH * 0.85;
 
   if (needsDownscale) {
@@ -408,7 +367,9 @@ export async function resizeImage(
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, outputFormat, Math.min(1, Math.max(0, quality))),
   );
-  bitmap.close();
+
+  // Only close the bitmap if we decoded it (caller owns cached bitmaps).
+  if (ownsBitmap) bitmap.close();
 
   if (!blob) throw new Error("Failed to encode resized image.");
 

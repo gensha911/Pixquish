@@ -15,12 +15,13 @@ export interface ResizePreviewState {
   error: string | null;
 }
 
-const DEBOUNCE_MS = 100;
+const DEBOUNCE_MS = 150;
 
 export function useResizePreview(
   file: ResizeFile | undefined,
   options: ResizeOptions,
   enabled: boolean,
+  getBitmap?: (id: string) => ImageBitmap | undefined,
 ): ResizePreviewState {
   const [state, setState] = React.useState<ResizePreviewState>({
     preview: null,
@@ -33,6 +34,12 @@ export function useResizePreview(
   // Keep a ref to the previous preview result so we can show it while the next one generates.
   const prevPreviewRef = React.useRef<ResizeResult | null>(null);
   const versionRef = React.useRef(0);
+  // Keep latest options in a ref so the timer callback always reads fresh values
+  // without `options` being in the effect deps (prevents spurious runs).
+  const optionsRef = React.useRef(options);
+  optionsRef.current = options;
+  const getBitmapRef = React.useRef(getBitmap);
+  getBitmapRef.current = getBitmap;
 
   function revokeUrls(urls: { url: string; originalUrl: string } | null) {
     if (urls) {
@@ -57,10 +64,11 @@ export function useResizePreview(
     }
 
     // Check if resize would change anything
-    const { width, height } = computeTargetDimensions(file.origW, file.origH, options);
+    const currentOptions = optionsRef.current;
+    const { width, height } = computeTargetDimensions(file.origW, file.origH, currentOptions);
     const noDimChange = width === file.origW && height === file.origH;
-    const noFitChange = options.fit === "cover" || options.scale !== null;
-    if (noDimChange && noFitChange && options.format === "original") {
+    const noFitChange = currentOptions.fit === "cover" || currentOptions.scale !== null;
+    if (noDimChange && noFitChange && currentOptions.format === "original") {
       revokeUrls(liveUrlsRef.current);
       liveUrlsRef.current = null;
       prevPreviewRef.current = null;
@@ -87,7 +95,10 @@ export function useResizePreview(
 
     const timer = setTimeout(async () => {
       try {
-        const result = await resizeImage(file.file, options);
+        // Read latest options + bitmap via refs (avoids stale closure).
+        const opts = optionsRef.current;
+        const cachedBitmap = getBitmapRef.current?.(file.id);
+        const result = await resizeImage(file.file, opts, undefined, cachedBitmap);
         if (version !== versionRef.current) {
           URL.revokeObjectURL(result.url);
           URL.revokeObjectURL(result.originalUrl);
@@ -110,7 +121,10 @@ export function useResizePreview(
     }, DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
-  }, [file?.id, file?.status, file?.origW, file?.origH, optionsSig, enabled, file?.file, options]);
+    // NOTE: `options` (object ref) is intentionally NOT in deps — `optionsSig`
+    // captures value changes. Using a ref for latest options prevents spurious
+    // effect runs when the parent re-renders with a new options object.
+  }, [file?.id, file?.status, file?.origW, file?.origH, optionsSig, enabled, file?.file]);
 
   // Cleanup on unmount
   React.useEffect(() => {

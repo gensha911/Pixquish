@@ -27,7 +27,7 @@ import { ComparisonSlider } from "./comparison-slider";
 import { cn } from "@/lib/utils";
 import { formatBytes } from "@/lib/compression";
 
-function ResizeFileItem({
+function ResizeFileItemInner({
   item,
   onRemove,
   selected,
@@ -228,6 +228,28 @@ function ResizeFileItem({
   );
 }
 
+// Memoize to prevent unnecessary re-renders when only one file's preview updates.
+const ResizeFileItem = React.memo(ResizeFileItemInner, (prev, next) => {
+  // Shallow compare all props — only re-render if something actually changed.
+  return (
+    prev.item.id === next.item.id &&
+    prev.item.status === next.item.status &&
+    prev.item.progress === next.item.progress &&
+    prev.item.result === next.item.result &&
+    prev.item.error === next.item.error &&
+    prev.item.origW === next.item.origW &&
+    prev.item.origH === next.item.origH &&
+    prev.item.dominantColor === next.item.dominantColor &&
+    prev.item.hasTransparency === next.item.hasTransparency &&
+    prev.selected === next.selected &&
+    prev.resizePreview === next.resizePreview &&
+    prev.isPreviewGenerating === next.isPreviewGenerating &&
+    prev.showGrid === next.showGrid &&
+    prev.onRemove === next.onRemove &&
+    prev.onToggleSelect === next.onToggleSelect
+  );
+});
+
 export function ResizeWorkspace() {
   const {
     files,
@@ -242,6 +264,7 @@ export function ResizeWorkspace() {
     updateOptions,
     doneCount,
     firstFileDimensions,
+    getBitmap,
   } = useResizeWorkspace();
 
   const hasIdle = files.some((f) => f.status === "idle" || f.status === "error");
@@ -328,7 +351,7 @@ export function ResizeWorkspace() {
     [previewCandidateId, files],
   );
 
-  const livePreview = useResizePreview(previewFile, options, true);
+  const livePreview = useResizePreview(previewFile, options, true, getBitmap);
 
   const resizeLabel = selectedCount > 0
     ? `Resize ${selectedCount} Selected`

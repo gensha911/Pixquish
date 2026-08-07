@@ -256,11 +256,9 @@ function StepCard({ step, index }: { step: GuideStep; index: number }) {
               src={step.screenshot}
               alt={step.title}
               className={
-                step.portrait
-                  ? "mx-auto block max-h-[460px] w-auto max-w-full object-contain"
-                  : step.compact
-                    ? "block h-[300px] w-full object-cover object-top sm:h-[340px]"
-                    : "h-auto w-full"
+                step.portrait || step.compact
+                  ? "mx-auto block max-h-[300px] w-auto max-w-full object-contain sm:max-h-[340px]"
+                  : "h-auto w-full"
               }
               onError={() => setImgErr(true)}
               loading="lazy"

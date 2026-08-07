@@ -31,6 +31,10 @@ interface GuideStep {
   screenshot?: string;
   highlights: string[];
   tip?: string;
+  /** Compact landscape screenshot — rendered at a fixed height with the less-important bottom cropped out. */
+  compact?: boolean;
+  /** Portrait screenshot — kept fully visible with object-contain and a max height (no cropping). */
+  portrait?: boolean;
 }
 
 const STEPS: GuideStep[] = [
@@ -127,6 +131,7 @@ const STEPS: GuideStep[] = [
     description:
       "Switch to the Resize tab and set precise width and height in pixels. You can also scale by percentage (10%–200%), or choose from 20+ presets for social media platforms like Instagram, X/Twitter, Facebook, YouTube, LinkedIn, and Pinterest.",
     screenshot: "/guide/09-resize-dimensions.png",
+    compact: true,
     highlights: [
       "Set exact width × height in pixels",
       "Scale by percentage: 10%, 25%, 50%, 75%, 100%, 150%, 200%",
@@ -141,6 +146,7 @@ const STEPS: GuideStep[] = [
     description:
       "Toggle the aspect ratio lock to keep proportions when changing one dimension. Then pick a fit mode: Cover fills the canvas and center-crops excess, Contain fits the image inside with optional padding color, and Stretch fills exactly (with a distortion warning if the ratio doesn't match).",
     screenshot: "/guide/10-resize-fit-modes.png",
+    compact: true,
     highlights: [
       "Aspect ratio lock keeps proportions automatically",
       "Cover — fills canvas, center-crops excess",
@@ -155,6 +161,7 @@ const STEPS: GuideStep[] = [
     description:
       "When shrinking images significantly, Pixquish uses a multi-step downscaling algorithm with high-quality smoothing. This produces sharper results than a single-step resize, especially for photos with fine detail. The before/after comparison slider lets you inspect the result at full quality.",
     screenshot: "/guide/11-resize-result.png",
+    compact: true,
     highlights: [
       "Multi-step halving for sharp downscaling",
       "High-quality image smoothing enabled",
@@ -169,6 +176,7 @@ const STEPS: GuideStep[] = [
     description:
       "Upload multiple images and process them all at once with the same settings. Select specific files with checkboxes, or process everything. The summary bar shows total progress and results across all images.",
     screenshot: "/guide/07-batch-download.png",
+    compact: true,
     highlights: [
       "Upload as many images as you want at once",
       "Select specific files with checkboxes to process only those",
@@ -183,6 +191,7 @@ const STEPS: GuideStep[] = [
     description:
       "Pixquish is fully responsive and works on phones, tablets, and desktops. On mobile, controls stack vertically for easy thumb access. Touch gestures are fully supported for the comparison slider and zooming.",
     screenshot: "/guide/08-mobile.png",
+    portrait: true,
     highlights: [
       "Fully responsive layout for all screen sizes",
       "Touch-friendly controls and gestures",
@@ -233,14 +242,26 @@ function StepCard({ step, index }: { step: GuideStep; index: number }) {
           aria-label={`Enlarge ${step.title} screenshot`}
         >
           {imgErr ? (
-            <div className="flex h-48 items-center justify-center text-muted-foreground">
+            <div
+              className={
+                step.compact || step.portrait
+                  ? "flex h-44 items-center justify-center text-muted-foreground"
+                  : "flex h-48 items-center justify-center text-muted-foreground"
+              }
+            >
               <ImageIcon className="size-8 opacity-40" />
             </div>
           ) : (
             <img
               src={step.screenshot}
               alt={step.title}
-              className="h-auto w-full"
+              className={
+                step.portrait
+                  ? "mx-auto block max-h-[460px] w-auto max-w-full object-contain"
+                  : step.compact
+                    ? "block h-[300px] w-full object-cover object-top sm:h-[340px]"
+                    : "h-auto w-full"
+              }
               onError={() => setImgErr(true)}
               loading="lazy"
             />

@@ -15,6 +15,7 @@ import {
   Maximize2,
   LayoutGrid,
   Link2,
+  MousePointerClick,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -72,6 +73,20 @@ const STEPS: GuideStep[] = [
     tip: "Target size mode overrides the compression mode — it will automatically find the best quality that meets your size requirement.",
   },
   {
+    icon: MousePointerClick,
+    title: "Click Compress",
+    description:
+      "Once your mode and target size are set, hit the Compress button in the workspace header. Use Compress All to process every image, Compress N Selected to compress just the files you've checked, or the per-row Compress button for a single image. Everything runs locally in your browser — your images never leave your device.",
+    screenshot: "/guide/04-controls.png",
+    highlights: [
+      "Compress All processes every uploaded image at once",
+      "Compress N Selected processes only the checked files",
+      "Per-row Compress button for a single image",
+      "100% private — all processing happens in your browser",
+    ],
+    tip: "Tick the checkboxes on individual files to compress a subset of your batch while leaving the rest untouched.",
+  },
+  {
     icon: SlidersHorizontal,
     title: "Compare Before and After",
     description:
@@ -85,6 +100,20 @@ const STEPS: GuideStep[] = [
       "Detailed stats: size saved, load speed, quality mode",
     ],
     tip: "The comparison line stays fixed when you pan — only the images move. This makes it easy to inspect specific areas at high zoom.",
+  },
+  {
+    icon: Download,
+    title: "Download Results",
+    description:
+      "Download individual images or use Download All to grab every processed file at once. Each download is named with the original filename plus a suffix so you never overwrite your originals.",
+    screenshot: "/guide/05-results.png",
+    highlights: [
+      "Individual download button per image",
+      "Download All grabs everything in one click",
+      "Compressed files named: originalname-pixquish.webp",
+      "Resized files named: originalname-1920x1080.jpg",
+      "Original images are never modified",
+    ],
   },
   // ─── Resize steps ───
   {
@@ -128,7 +157,7 @@ const STEPS: GuideStep[] = [
       "Before/after comparison slider with zoom",
     ],
   },
-  // ─── Shared: Batch & Download ───
+  // ─── Shared: Batch & Mobile ───
   {
     icon: Layers,
     title: "Batch Process Multiple Images",
@@ -141,20 +170,6 @@ const STEPS: GuideStep[] = [
       "Process All handles every image with the same settings",
       "Summary shows total files done and total space saved",
       "Download All exports every processed image at once",
-    ],
-  },
-  {
-    icon: Download,
-    title: "Download Results",
-    description:
-      "Download individual images or use Download All to grab every processed file at once. Each download is named with the original filename plus a suffix so you never overwrite your originals.",
-    screenshot: "/guide/05-results.png",
-    highlights: [
-      "Individual download button per image",
-      "Download All grabs everything in one click",
-      "Compressed files named: originalname-pixquish.webp",
-      "Resized files named: originalname-1920x1080.jpg",
-      "Original images are never modified",
     ],
   },
   {

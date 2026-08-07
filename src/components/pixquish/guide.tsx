@@ -17,7 +17,12 @@ import {
   Link2,
   MousePointerClick,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface GuideStep {
   icon: React.ElementType;
@@ -204,8 +209,8 @@ const headerVariants: Variants = {
 
 function StepCard({ step, index }: { step: GuideStep; index: number }) {
   const [imgErr, setImgErr] = React.useState(false);
+  const [zoomed, setZoomed] = React.useState(false);
   const Icon = step.icon;
-  const flip = index % 2 === 1;
 
   return (
     <motion.div variants={itemVariants} className="group">
@@ -219,40 +224,44 @@ function StepCard({ step, index }: { step: GuideStep; index: number }) {
         </div>
       </div>
 
-      <div className={flip ? "grid gap-6 lg:grid-cols-2 lg:gap-8" : "grid gap-6 lg:grid-cols-2 lg:gap-8"}>
-        <div className={flip ? "lg:order-2" : ""}>
-          {step.screenshot ? (
-            <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-lg">
-              {imgErr ? (
-                <div className="flex h-48 items-center justify-center text-muted-foreground">
-                  <ImageIcon className="size-8 opacity-40" />
-                </div>
-              ) : (
-                <img
-                  src={step.screenshot}
-                  alt={step.title}
-                  className="h-auto w-full"
-                  onError={() => setImgErr(true)}
-                  loading="lazy"
-                />
-              )}
-              <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-foreground/5" />
+      {/* Full-width screenshot — click to zoom for full-resolution view */}
+      {step.screenshot ? (
+        <button
+          type="button"
+          onClick={() => setZoomed(true)}
+          className="group/img relative block w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-lg transition-transform duration-200 hover:scale-[1.003] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          aria-label={`Enlarge ${step.title} screenshot`}
+        >
+          {imgErr ? (
+            <div className="flex h-48 items-center justify-center text-muted-foreground">
+              <ImageIcon className="size-8 opacity-40" />
             </div>
-          ) : null}
-        </div>
+          ) : (
+            <img
+              src={step.screenshot}
+              alt={step.title}
+              className="h-auto w-full"
+              onError={() => setImgErr(true)}
+              loading="lazy"
+            />
+          )}
+          <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-foreground/5" />
+          {/* Zoom hint badge */}
+          {!imgErr && (
+            <span className="pointer-events-none absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-lg bg-background/85 px-3 py-1.5 text-xs font-medium text-foreground opacity-0 shadow-sm backdrop-blur transition-opacity duration-200 group-hover/img:opacity-100">
+              <Maximize2 className="size-3.5 text-brand" />
+              Click to zoom
+            </span>
+          )}
+        </button>
+      ) : null}
 
-        <div className="flex flex-col justify-center">
+      {/* Description + highlights below the image */}
+      <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:gap-8">
+        <div>
           <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
             {step.description}
           </p>
-          <ul className="mt-4 space-y-2.5">
-            {step.highlights.map((h) => (
-              <li key={h} className="flex items-start gap-2.5 text-sm">
-                <span className="mt-1.5 block size-1.5 shrink-0 rounded-full bg-brand" />
-                <span className="text-foreground/80">{h}</span>
-              </li>
-            ))}
-          </ul>
           {step.tip && (
             <div className="mt-4 rounded-xl border border-brand/20 bg-brand-muted/40 px-4 py-3">
               <p className="text-xs font-medium text-brand">Pro tip</p>
@@ -260,7 +269,34 @@ function StepCard({ step, index }: { step: GuideStep; index: number }) {
             </div>
           )}
         </div>
+        <ul className="space-y-2.5">
+          {step.highlights.map((h) => (
+            <li key={h} className="flex items-start gap-2.5 text-sm">
+              <span className="mt-1.5 block size-1.5 shrink-0 rounded-full bg-brand" />
+              <span className="text-foreground/80">{h}</span>
+            </li>
+          ))}
+        </ul>
       </div>
+
+      {/* Click-to-zoom lightbox — shows the screenshot at full resolution */}
+      <Dialog open={zoomed} onOpenChange={setZoomed}>
+        <DialogContent
+          aria-describedby={undefined}
+          className="max-w-[95vw] gap-0 overflow-hidden border-border/60 bg-background/95 p-0 backdrop-blur sm:max-w-[95vw] sm:rounded-2xl"
+        >
+          <DialogHeader className="sr-only">
+            <DialogTitle>{step.title} — screenshot</DialogTitle>
+          </DialogHeader>
+          {step.screenshot && (
+            <img
+              src={step.screenshot}
+              alt={step.title}
+              className="block h-auto max-h-[90vh] w-auto max-w-full object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }

@@ -19,6 +19,19 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+interface HighlightBox {
+  /** Top-left X as % of image width (0-100) */
+  x: number;
+  /** Top-left Y as % of image height (0-100) */
+  y: number;
+  /** Width as % of image width (0-100) */
+  w: number;
+  /** Height as % of image height (0-100) */
+  h: number;
+  /** Optional label shown as a small badge on the box */
+  label?: string;
+}
+
 interface GuideStep {
   icon: React.ElementType;
   title: string;
@@ -26,6 +39,8 @@ interface GuideStep {
   screenshot?: string;
   highlights: string[];
   tip?: string;
+  /** Optional outline box drawn over the screenshot to spotlight a UI element. */
+  highlight?: HighlightBox;
 }
 
 const STEPS: GuideStep[] = [
@@ -43,6 +58,7 @@ const STEPS: GuideStep[] = [
       "Supported formats: JPEG, PNG, WebP, AVIF",
     ],
     tip: "You can keep adding more images even after processing — just drop them into the compact upload bar at the top.",
+    highlight: { x: 3, y: 34, w: 94, h: 38, label: "Drop zone" },
   },
   // ─── Compress steps ───
   {
@@ -57,6 +73,7 @@ const STEPS: GuideStep[] = [
       "Max Compress — smallest files possible",
       "Your chosen mode is remembered across sessions",
     ],
+    highlight: { x: 2, y: 20, w: 22, h: 13, label: "Mode" },
   },
   {
     icon: Target,
@@ -71,6 +88,7 @@ const STEPS: GuideStep[] = [
       "Works with any output format",
     ],
     tip: "Target size mode overrides the compression mode — it will automatically find the best quality that meets your size requirement.",
+    highlight: { x: 2, y: 71, w: 22, h: 15, label: "Target size" },
   },
   {
     icon: MousePointerClick,
@@ -85,6 +103,7 @@ const STEPS: GuideStep[] = [
       "100% private — all processing happens in your browser",
     ],
     tip: "Tick the checkboxes on individual files to compress a subset of your batch while leaving the rest untouched.",
+    highlight: { x: 30, y: 2, w: 40, h: 10, label: "Compress All" },
   },
   {
     icon: SlidersHorizontal,
@@ -100,6 +119,7 @@ const STEPS: GuideStep[] = [
       "Detailed stats: size saved, load speed, quality mode",
     ],
     tip: "The comparison line stays fixed when you pan — only the images move. This makes it easy to inspect specific areas at high zoom.",
+    highlight: { x: 47, y: 15, w: 7, h: 70, label: "Slider" },
   },
   {
     icon: Download,
@@ -114,6 +134,7 @@ const STEPS: GuideStep[] = [
       "Resized files named: originalname-1920x1080.jpg",
       "Original images are never modified",
     ],
+    highlight: { x: 75, y: 4, w: 17, h: 8, label: "Download all" },
   },
   // ─── Resize steps ───
   {
@@ -129,6 +150,7 @@ const STEPS: GuideStep[] = [
       "Web presets: HD 1080p, 720p, Web Banner, Favicon, App Icon",
       "Common presets: 4K UHD, 2K QHD, Square, Widescreen",
     ],
+    highlight: { x: 2, y: 63, w: 22, h: 13, label: "Width × Height" },
   },
   {
     icon: Link2,
@@ -143,6 +165,7 @@ const STEPS: GuideStep[] = [
       "Stretch — fills exactly, warns about distortion",
     ],
     tip: "Use Contain mode with a transparent or custom background color for logos and graphics that need a specific canvas size.",
+    highlight: { x: 2, y: 50, w: 22, h: 11, label: "Fit mode" },
   },
   {
     icon: LayoutGrid,
@@ -156,6 +179,7 @@ const STEPS: GuideStep[] = [
       "Works with all fit modes and formats",
       "Before/after comparison slider with zoom",
     ],
+    highlight: { x: 58, y: 25, w: 8, h: 50, label: "Compare" },
   },
   // ─── Shared: Batch & Mobile ───
   {
@@ -171,6 +195,7 @@ const STEPS: GuideStep[] = [
       "Summary shows total files done and total space saved",
       "Download All exports every processed image at once",
     ],
+    highlight: { x: 25, y: 33, w: 8, h: 50, label: "Select files" },
   },
   {
     icon: Smartphone,
@@ -201,6 +226,45 @@ const headerVariants: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
 };
+
+function HighlightOverlay({ box }: { box: HighlightBox }) {
+  return (
+    <motion.div
+      aria-hidden
+      initial={{ opacity: 0, scale: 0.96 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.45, ease: "easeOut", delay: 0.15 }}
+      style={{
+        left: `${box.x}%`,
+        top: `${box.y}%`,
+        width: `${box.w}%`,
+        height: `${box.h}%`,
+      }}
+      className="pointer-events-none absolute z-10"
+    >
+      {/* Pulsing soft halo to draw the eye */}
+      <motion.div
+        className="absolute -inset-1 rounded-lg bg-brand/10"
+        animate={{ opacity: [0.35, 0.7, 0.35] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+      />
+      {/* The square outline box (annotated marker) */}
+      <div className="absolute inset-0 rounded-lg border-2 border-brand shadow-[0_0_0_3px_rgba(255,255,255,0.35)]" />
+      {/* Viewfinder corner accents for a polished "marked" look */}
+      <span className="absolute -left-[3px] -top-[3px] size-3 rounded-tl-md border-l-[3px] border-t-[3px] border-brand" />
+      <span className="absolute -right-[3px] -top-[3px] size-3 rounded-tr-md border-r-[3px] border-t-[3px] border-brand" />
+      <span className="absolute -bottom-[3px] -left-[3px] size-3 rounded-bl-md border-b-[3px] border-l-[3px] border-brand" />
+      <span className="absolute -bottom-[3px] -right-[3px] size-3 rounded-br-md border-b-[3px] border-r-[3px] border-brand" />
+      {/* Floating label badge */}
+      {box.label && (
+        <span className="absolute -top-2.5 left-2 inline-flex -translate-y-full items-center gap-1 rounded-md bg-brand px-2 py-0.5 text-[10px] font-semibold leading-none text-white shadow-sm">
+          {box.label}
+        </span>
+      )}
+    </motion.div>
+  );
+}
 
 function StepCard({ step, index }: { step: GuideStep; index: number }) {
   const [imgErr, setImgErr] = React.useState(false);
@@ -236,6 +300,7 @@ function StepCard({ step, index }: { step: GuideStep; index: number }) {
                   loading="lazy"
                 />
               )}
+              {step.highlight && !imgErr && <HighlightOverlay box={step.highlight} />}
               <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-foreground/5" />
             </div>
           ) : null}

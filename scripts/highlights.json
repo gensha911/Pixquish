@@ -1,0 +1,45 @@
+{
+  "upload": {
+    "file": "03-uploaded.png",
+    "error": "unparseable: {\"x\": 25, \"356, \"w\": 950, \"h\": 416}"
+  },
+  "mode": {
+    "file": "04-controls.png",
+    "error": "unparseable: {\"x\":38, \"269\", \"w\":210, \"h\":135}"
+  },
+  "target": {
+    "file": "04-controls.png",
+    "error": "unparseable: {\"x\":39, \"820, \"w\":221, \"h\":100}"
+  },
+  "compress": {
+    "file": "04-controls.png",
+    "error": "unparseable: {\"x\":434, \"27, \"w\":16.2, \"h\":6.1}"
+  },
+  "compare": {
+    "file": "06-comparison.png",
+    "x": 100,
+    "y": 100,
+    "w": 1,
+    "h": 100
+  },
+  "download": {
+    "file": "05-results.png",
+    "error": "unparseable: {\"x\":788, \"68, \"w\":12.7, \"h\":4.2}"
+  },
+  "dimensions": {
+    "file": "09-resize-dimensions.png",
+    "error": "unparseable: {\"x\": 38, \"659, \"y\": 38, \"h\": 42}"
+  },
+  "fitmode": {
+    "file": "10-resize-fit-modes.png",
+    "error": "unparseable: {\"x\":39, \"518, \"y\":224, \"h\":62}"
+  },
+  "resizeslider": {
+    "file": "11-resize-result.png",
+    "error": "API request failed with status 429: {\"error\":\"Too many requests, please try again later\"}"
+  },
+  "batch": {
+    "file": "07-batch-download.png",
+    "error": "API request failed with status 429: {\"error\":\"Too many requests, please try again later\"}"
+  }
+}

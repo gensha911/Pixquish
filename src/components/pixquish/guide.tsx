@@ -31,8 +31,6 @@ interface GuideStep {
   screenshot?: string;
   highlights: string[];
   tip?: string;
-  /** When true the screenshot is kept fully visible (object-contain) instead of top-cropped — use for portrait/mobile shots. */
-  portrait?: boolean;
 }
 
 const STEPS: GuideStep[] = [
@@ -185,7 +183,6 @@ const STEPS: GuideStep[] = [
     description:
       "Pixquish is fully responsive and works on phones, tablets, and desktops. On mobile, controls stack vertically for easy thumb access. Touch gestures are fully supported for the comparison slider and zooming.",
     screenshot: "/guide/08-mobile.png",
-    portrait: true,
     highlights: [
       "Fully responsive layout for all screen sizes",
       "Touch-friendly controls and gestures",
@@ -236,18 +233,14 @@ function StepCard({ step, index }: { step: GuideStep; index: number }) {
           aria-label={`Enlarge ${step.title} screenshot`}
         >
           {imgErr ? (
-            <div className="flex h-44 items-center justify-center text-muted-foreground">
-              <ImageIcon className="size-7 opacity-40" />
+            <div className="flex h-48 items-center justify-center text-muted-foreground">
+              <ImageIcon className="size-8 opacity-40" />
             </div>
           ) : (
             <img
               src={step.screenshot}
               alt={step.title}
-              className={
-                step.portrait
-                  ? "mx-auto block max-h-[460px] w-auto max-w-full object-contain"
-                  : "block h-[300px] w-full object-cover object-top sm:h-[340px]"
-              }
+              className="h-auto w-full"
               onError={() => setImgErr(true)}
               loading="lazy"
             />
@@ -336,7 +329,7 @@ export function Guide() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-60px" }}
-          className="mt-10 space-y-12 md:mt-12 md:space-y-14"
+          className="mt-12 space-y-16 md:mt-16 md:space-y-20"
         >
           {STEPS.map((step, i) => (
             <StepCard key={step.title} step={step} index={i} />
@@ -348,7 +341,7 @@ export function Guide() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="mt-12 text-center md:mt-16"
+          className="mt-16 text-center md:mt-20"
         >
           <p className="text-lg font-medium text-foreground">Ready to get started?</p>
           <p className="mt-1 text-sm text-muted-foreground">

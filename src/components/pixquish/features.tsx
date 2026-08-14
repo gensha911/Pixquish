@@ -76,7 +76,7 @@ const FEATURES: Feature[] = [
   },
   {
     icon: Ruler,
-    title: "Smart Scaling",
+    title: "Smart Downscaling",
     description:
       "Multi-step downscaling with high-quality smoothing produces sharp results when shrinking images significantly.",
   },

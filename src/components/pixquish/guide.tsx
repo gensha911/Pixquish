@@ -157,16 +157,16 @@ const STEPS: GuideStep[] = [
   },
   {
     icon: LayoutGrid,
-    title: "Smart Multi-Step Scaling",
+    title: "Smart Multi-Step Downscaling",
     description:
-      "When shrinking images significantly, Pixquish uses a multi-step downscaling algorithm with high-quality smoothing. This produces sharper results than a single-step resize, especially for photos with fine detail. The before/after comparison slider lets you inspect the result at full quality.",
+      "When shrinking images significantly, Pixquish uses a multi-step downscaling algorithm with high-quality smoothing. This produces sharper results than a single-step resize, especially for photos with fine detail. Scroll to zoom into the result and drag to pan around for pixel-level inspection.",
     screenshot: "/guide/11-resize-result.png",
     compact: true,
     highlights: [
       "Multi-step halving for sharp downscaling",
       "High-quality image smoothing enabled",
       "Works with all fit modes and formats",
-      "Before/after comparison slider with zoom",
+      "Scroll to zoom, drag to pan, double-click to reset",
     ],
   },
   // ─── Shared: Batch & Mobile ───

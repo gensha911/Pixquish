@@ -60,7 +60,7 @@ const FEATURES: Feature[] = [
     icon: Maximize2,
     title: "Precise Resizing",
     description:
-      "Set exact width and height, scale by percentage, or pick from 20+ social media and web presets.",
+      "Set exact width and height in pixels or pick from 20+ social media and web presets.",
   },
   {
     icon: Link2,

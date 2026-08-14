@@ -16,7 +16,6 @@ export interface ResizePreset {
 export interface ResizeOptions {
   width: number | null;
   height: number | null;
-  scale: number | null; // percentage, e.g. 50 for 50%
   lockAspect: boolean;
   fit: FitMode;
   format: string; // "original" | mime type
@@ -92,12 +91,6 @@ export function computeTargetDimensions(
   origH: number,
   opts: ResizeOptions,
 ): { width: number; height: number } {
-  // Scale percentage takes priority
-  if (opts.scale !== null && opts.scale > 0) {
-    const s = opts.scale / 100;
-    return { width: Math.max(1, Math.round(origW * s)), height: Math.max(1, Math.round(origH * s)) };
-  }
-
   let w = opts.width ?? origW;
   let h = opts.height ?? origH;
 
@@ -260,12 +253,9 @@ export async function resizeImage(
   // 0.95 to avoid browser encoder quirks at 1.0 while staying visually lossless.
   const quality = options.quality ?? (outputFormat === "image/png" ? 1.0 : QUALITY_CEILING);
 
-  // For scale mode, aspect is preserved automatically — stretch is exact fit.
-  const fit = options.scale !== null ? ("stretch" as const) : options.fit;
-
   // ── Standard canvas path (always used — multi-step downscale for quality) ──
   const layout = computeDrawLayout(
-    origW, origH, width, height, fit,
+    origW, origH, width, height, options.fit,
     options.coverOffsetX, options.coverOffsetY,
   );
 

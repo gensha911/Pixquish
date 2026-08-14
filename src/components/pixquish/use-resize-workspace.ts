@@ -22,7 +22,6 @@ export interface ResizeFile {
 export const DEFAULT_RESIZE_OPTIONS: ResizeOptions = {
   width: null,
   height: null,
-  scale: null,
   lockAspect: true,
   fit: "cover",
   format: "original",
@@ -251,8 +250,8 @@ export function useResizeWorkspace(selectedIdsRef?: React.RefObject<Set<string> 
 
   // Auto-resize when options change
   const optionsSig = React.useMemo(
-    () => JSON.stringify([options.width, options.height, options.scale, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.format, options.quality, options.sharpen, options.sharpenAmount, options.coverOffsetX, options.coverOffsetY]),
-    [options.width, options.height, options.scale, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.format, options.quality, options.sharpen, options.sharpenAmount, options.coverOffsetX, options.coverOffsetY],
+    () => JSON.stringify([options.width, options.height, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.format, options.quality, options.sharpen, options.sharpenAmount, options.coverOffsetX, options.coverOffsetY]),
+    [options.width, options.height, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.format, options.quality, options.sharpen, options.sharpenAmount, options.coverOffsetX, options.coverOffsetY],
   );
 
   React.useEffect(() => {

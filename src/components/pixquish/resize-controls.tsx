@@ -7,7 +7,6 @@ import {
   FileImage,
   Link2,
   Unlink2,
-  Ruler,
   AlertTriangle,
   Expand,
   Shrink,
@@ -58,8 +57,6 @@ const FORMAT_OPTIONS: OutputFormat[] = [
   "image/webp",
   "image/avif",
 ];
-
-const SCALE_OPTIONS = [10, 25, 50, 75, 100, 150, 200];
 
 const FIT_MODES: { value: FitMode; label: string; icon: React.ReactNode; desc: string }[] = [
   { value: "cover", label: "Cover", icon: <Expand className="size-3.5" />, desc: "Fill canvas, crop excess" },
@@ -113,7 +110,7 @@ export function ResizeControls({
   // Single onChange call when aspect is locked (fixes double-update race)
   const handleWidthChange = (val: string) => {
     const num = parseInt(val, 10) || 0;
-    const patch: Partial<ResizeOptions> = { width: num > 0 ? num : null, scale: null };
+    const patch: Partial<ResizeOptions> = { width: num > 0 ? num : null };
     if (options.lockAspect && num > 0 && originalDimensions) {
       const aspect = originalDimensions.width / originalDimensions.height;
       patch.height = Math.max(1, Math.round(num / aspect));
@@ -123,7 +120,7 @@ export function ResizeControls({
 
   const handleHeightChange = (val: string) => {
     const num = parseInt(val, 10) || 0;
-    const patch: Partial<ResizeOptions> = { height: num > 0 ? num : null, scale: null };
+    const patch: Partial<ResizeOptions> = { height: num > 0 ? num : null };
     if (options.lockAspect && num > 0 && originalDimensions) {
       const aspect = originalDimensions.width / originalDimensions.height;
       patch.width = Math.max(1, Math.round(num * aspect));
@@ -138,19 +135,11 @@ export function ResizeControls({
       onChange({
         width: preset.width,
         height: preset.height,
-        scale: null,
         coverOffsetX: 50,
         coverOffsetY: 50,
       });
     }
   };
-
-  const handleScaleSelect = (val: string) => {
-    if (val === "custom") return;
-    onChange({ scale: parseInt(val, 10), width: null, height: null });
-  };
-
-  const isUsingScale = options.scale !== null;
 
   // ── Quality control logic ──────────────────────────────────────────────
   // Quality slider is only meaningful for lossy formats. PNG is lossless so
@@ -182,7 +171,6 @@ export function ResizeControls({
   };
 
   const hasPreset =
-    !isUsingScale &&
     options.width !== null &&
     options.height !== null &&
     RESIZE_PRESETS.some(
@@ -191,7 +179,6 @@ export function ResizeControls({
 
   // Detect aspect ratio mismatch for the stretch warning
   const hasRatioMismatch =
-    !isUsingScale &&
     options.fit === "stretch" &&
     options.width !== null &&
     options.height !== null &&
@@ -218,7 +205,7 @@ export function ResizeControls({
     return imgR < tR - 0.01;
   }, [options.fit, originalDimensions, options.width, options.height]);
 
-  const showCoverOffset = !isUsingScale && options.fit === "cover" && (coverHasCropX || coverHasCropY);
+  const showCoverOffset = options.fit === "cover" && (coverHasCropX || coverHasCropY);
 
   return (
     <div className="rounded-2xl border border-border/70 bg-card/50 p-4 shadow-sm backdrop-blur-sm sm:p-5">
@@ -251,42 +238,8 @@ export function ResizeControls({
       <Separator className="my-3" />
 
       <div className="flex flex-col gap-4">
-        {/* Scale percentage */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Ruler className="size-4 text-brand" />
-            <p className="text-sm font-medium">Scale</p>
-          </div>
-          <Select
-            value={isUsingScale ? String(options.scale) : "custom"}
-            onValueChange={handleScaleSelect}
-          >
-            <SelectTrigger className="w-full" aria-label="Scale percentage">
-              <SelectValue
-                placeholder={isUsingScale ? `${options.scale}%` : "Custom size"}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {SCALE_OPTIONS.map((s) => (
-                <SelectItem key={s} value={String(s)}>
-                  {s}% {s === 100 ? "(original)" : s < 100 ? "(smaller)" : "(larger)"}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {/* Show computed output dimensions when using scale */}
-          {isUsingScale && originalDimensions && (
-            <p className="text-xs text-muted-foreground">
-              Output: {Math.max(1, Math.round(originalDimensions.width * (options.scale! / 100)))}×{Math.max(1, Math.round(originalDimensions.height * (options.scale! / 100)))}
-            </p>
-          )}
-        </div>
-
         {/* Dimensions */}
-        {!isUsingScale && (
-          <>
-            <div className="space-y-2">
+        <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Maximize2 className="size-4 text-brand" />
                 <p className="text-sm font-medium">Dimensions</p>
@@ -600,8 +553,6 @@ export function ResizeControls({
                 </div>
               )}
             </div>
-          </>
-        )}
 
         <Separator />
 

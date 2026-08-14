@@ -30,7 +30,7 @@ const FAQ_ENTRIES: FaqEntry[] = [
   {
     question: "Can I resize images too?",
     answer:
-      "Yes! Switch to the Resize tab to set exact dimensions in pixels, scale by percentage, or choose from 20+ presets for Instagram, X/Twitter, Facebook, YouTube, LinkedIn, Pinterest, and common web sizes.",
+      "Yes! Switch to the Resize tab to set exact dimensions in pixels or choose from 20+ presets for Instagram, X/Twitter, Facebook, YouTube, LinkedIn, Pinterest, and common web sizes.",
   },
   {
     question: "What are the fit modes in the resizer?",

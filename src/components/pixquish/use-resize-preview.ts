@@ -49,8 +49,8 @@ export function useResizePreview(
   }
 
   const optionsSig = React.useMemo(
-    () => JSON.stringify([options.width, options.height, options.scale, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.sharpen, options.sharpenAmount, options.format, options.quality, options.coverOffsetX, options.coverOffsetY]),
-    [options.width, options.height, options.scale, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.sharpen, options.sharpenAmount, options.format, options.quality, options.coverOffsetX, options.coverOffsetY],
+    () => JSON.stringify([options.width, options.height, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.sharpen, options.sharpenAmount, options.format, options.quality, options.coverOffsetX, options.coverOffsetY]),
+    [options.width, options.height, options.lockAspect, options.fit, options.containBgColor, options.containBgMode, options.containBlur, options.sharpen, options.sharpenAmount, options.format, options.quality, options.coverOffsetX, options.coverOffsetY],
   );
 
   React.useEffect(() => {

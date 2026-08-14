@@ -192,7 +192,7 @@ const softwareAppLd = {
     "Smart per-image analysis for optimal compression",
     "Three compression modes: Best Quality, Balanced, Max Compress",
     "Target file size with binary search precision",
-    "Resize to exact dimensions or scale by percentage",
+    "Resize to exact dimensions or pick from 20+ presets",
     "20+ social media and web presets (Instagram, YouTube, X, Facebook)",
     "Fit modes: Cover, Contain, Stretch with distortion warning",
     "Aspect ratio lock for proportion-safe resizing",
@@ -234,7 +234,7 @@ const faqLd = {
       name: "Can I resize images too?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes! Switch to the Resize tab to set exact dimensions in pixels, scale by percentage, or choose from 20+ presets for Instagram, X/Twitter, Facebook, YouTube, LinkedIn, Pinterest, and common web sizes.",
+        text: "Yes! Switch to the Resize tab to set exact dimensions in pixels or choose from 20+ presets for Instagram, X/Twitter, Facebook, YouTube, LinkedIn, Pinterest, and common web sizes.",
       },
     },
     {

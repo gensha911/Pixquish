@@ -129,12 +129,12 @@ const STEPS: GuideStep[] = [
     icon: Maximize2,
     title: "Resize to Exact Dimensions",
     description:
-      "Switch to the Resize tab and set precise width and height in pixels. You can also scale by percentage (10%–200%), or choose from 20+ presets for social media platforms like Instagram, X/Twitter, Facebook, YouTube, LinkedIn, and Pinterest.",
+      "Switch to the Resize tab and set precise width and height in pixels, or choose from 20+ presets for social media platforms like Instagram, X/Twitter, Facebook, YouTube, LinkedIn, and Pinterest.",
     screenshot: "/guide/09-resize-dimensions.png",
     compact: true,
     highlights: [
       "Set exact width × height in pixels",
-      "Scale by percentage: 10%, 25%, 50%, 75%, 100%, 150%, 200%",
+      "Lock aspect ratio to preserve proportions while resizing",
       "20+ presets: Instagram, X/Twitter, Facebook, YouTube, LinkedIn, Pinterest",
       "Web presets: HD 1080p, 720p, Web Banner, Favicon, App Icon",
       "Common presets: 4K UHD, 2K QHD, Square, Widescreen",

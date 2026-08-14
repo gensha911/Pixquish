@@ -415,8 +415,8 @@ export function ResizeWorkspace() {
             Resize images to any dimension
           </h2>
           <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-            Set exact dimensions, pick from 20+ social media presets, or scale by
-            percentage — all in your browser.
+            Set exact dimensions or pick from 20+ social media presets —
+            all in your browser.
           </p>
         </div>
 

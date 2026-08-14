@@ -88,48 +88,57 @@ export function useResizeWorkspace() {
       /image\/(jpeg|png|webp|avif)/i.test(f.type) || /\.(jpe?g|png|webp|avif)$/i.test(f.name),
     );
     if (arr.length === 0) return [];
-    const created: ResizeFile[] = [];
-    const loadPromises = arr.map(async (file) => {
-      try {
-        const bitmap = await createImageBitmap(file);
-        const { color, hasTransparency } = await extractImageMeta(file);
-        const id = genId();
-        // Cache the decoded bitmap — reused for preview + final resize.
-        sourceCacheRef.current.set(id, { bitmap });
-        created.push({
-          id,
-          file,
-          status: "idle",
-          progress: 0,
-          origW: bitmap.width,
-          origH: bitmap.height,
-          dominantColor: color,
-          hasTransparency,
-        });
-        // Do NOT close bitmap — it's cached for reuse.
-      } catch {
-        created.push({
-          id: genId(),
-          file,
-          status: "idle",
-          progress: 0,
-        });
+    // Create file objects synchronously so ids are available immediately —
+    // this lets the caller (handleAddFiles) auto-select the new files right
+    // away, matching the compressor workspace's behaviour. Bitmap decoding
+    // and metadata extraction happen in the background below.
+    const created: ResizeFile[] = arr.map((file) => ({
+      id: genId(),
+      file,
+      status: "idle" as const,
+      progress: 0,
+    }));
+    const newIds = created.map((c) => c.id);
+
+    setFiles((prev) => {
+      // If settings are already configured (done files exist), auto-resize new files
+      const hasDone = prev.some((f) => f.status === "done");
+      if (hasDone && newIds.length > 0) {
+        setTimeout(() => {
+          resizeAllRef.current(newIds);
+        }, 100);
       }
+      return [...created, ...prev];
     });
-    Promise.all(loadPromises).then(() => {
-      const newIds = created.map((c) => c.id);
-      setFiles((prev) => {
-        // If settings are already configured (done files exist), auto-resize new files
-        const hasDone = prev.some((f) => f.status === "done");
-        if (hasDone && newIds.length > 0) {
-          setTimeout(() => {
-            resizeAllRef.current(newIds);
-          }, 100);
-        }
-        return [...created, ...prev];
-      });
-    });
-    return created.map((c) => c.id);
+
+    // Decode bitmaps + extract metadata in the background (non-blocking).
+    // Dimensions/color are filled in once decoding completes.
+    for (const item of created) {
+      Promise.all([createImageBitmap(item.file), extractImageMeta(item.file)])
+        .then(([bitmap, { color, hasTransparency }]) => {
+          // Cache the decoded bitmap — reused for preview + final resize.
+          sourceCacheRef.current.set(item.id, { bitmap });
+          setFiles((prev) =>
+            prev.map((x) =>
+              x.id === item.id
+                ? {
+                    ...x,
+                    origW: bitmap.width,
+                    origH: bitmap.height,
+                    dominantColor: color,
+                    hasTransparency,
+                  }
+                : x,
+            ),
+          );
+        })
+        .catch(() => {
+          // Bitmap decode failed — file stays idle without dimensions.
+          // The resize engine will fall back to its own decode later.
+        });
+    }
+
+    return newIds;
   }, []);
 
   const removeFile = React.useCallback((id: string) => {

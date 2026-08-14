@@ -66,6 +66,61 @@ const FAQ_ENTRIES: FaqEntry[] = [
     question: "Is Pixquish free?",
     answer: "Yes. Pixquish is free to use, with no sign-up required.",
   },
+  {
+    question: "How do I compress a PNG without losing quality?",
+    answer:
+      "Upload your PNG and choose Best Quality mode. Pixquish keeps the PNG lossless when the output format is PNG (PNG uses lossless compression, so quality is never reduced). For even smaller files, switch the output format to WebP or AVIF — both support lossless modes that can shrink PNGs by 30–50% with zero quality loss.",
+  },
+  {
+    question: "How do I compress a JPG to 100KB?",
+    answer:
+      "Upload your JPG, then use the target file size feature. Pick the 100 KB preset (or type a custom value) and Pixquish runs a binary search over JPEG quality levels to produce a file as close to 100 KB as possible while keeping the best achievable visual quality.",
+  },
+  {
+    question: "What is the best image format for the web?",
+    answer:
+      "WebP and AVIF are the best modern formats for the web — they produce files 25–50% smaller than JPEG and PNG at the same visual quality. Pixquish can convert your JPG or PNG to WebP or AVIF automatically. For logos and graphics with few colors, PNG stays lossless and crisp. For photos, WebP or AVIF is recommended.",
+  },
+  {
+    question: "What is the Instagram post size?",
+    answer:
+      "Instagram square posts are 1080×1080 pixels, landscape posts are 1080×566 pixels, and portrait posts are 1080×1350 pixels. Instagram Stories and Reels use 1080×1920 pixels. Pixquish includes all these as one-click presets in the Resize tab.",
+  },
+  {
+    question: "What is the YouTube thumbnail size?",
+    answer:
+      "YouTube thumbnails are 1280×720 pixels (16:9 aspect ratio). Pixquish includes a YouTube Thumbnail preset in the Resize tab — upload your image, pick the preset, and download a perfectly sized thumbnail.",
+  },
+  {
+    question: "How do I reduce image file size for email?",
+    answer:
+      "Upload your image and use the target file size feature set to 200 KB or less — most email providers limit attachments to 25 MB but recommend keeping images under 1 MB. For photos, switching the output to JPEG with Balanced mode gives the smallest files with good quality.",
+  },
+  {
+    question: "PNG vs WebP — which is smaller?",
+    answer:
+      "WebP is almost always smaller than PNG — typically 25–35% smaller for the same lossless image, and much smaller for photos (where PNG has no lossy mode). Pixquish can convert PNG to WebP with a single click in the output format selector of either the Compress or Resize tab.",
+  },
+  {
+    question: "How many images can I compress or resize at once?",
+    answer:
+      "Pixquish has no hard limit — you can batch process as many images as your browser can hold in memory. In practice, 50–200 images per batch works smoothly on most devices. Use the checkboxes to process a subset, or Resize/Compress All to handle every uploaded file at once.",
+  },
+  {
+    question: "Is it safe to use an online image compressor?",
+    answer:
+      "Pixquish is the safest kind of online compressor: it runs entirely in your browser using the Canvas API. Your images are never uploaded to a server, never stored, and never seen by anyone. There is no sign-up, no tracking of your files, and no server-side processing — everything happens on your device.",
+  },
+  {
+    question: "Can I convert images to WebP or AVIF?",
+    answer:
+      "Yes. In either the Compress or Resize tab, change the output format selector to WebP or AVIF. Pixquish will convert your JPG, PNG, WebP, or AVIF input to the chosen format. AVIF typically produces the smallest files, followed by WebP, then JPEG.",
+  },
+  {
+    question: "How do I resize an image for Instagram?",
+    answer:
+      "Switch to the Resize tab, upload your image, then pick an Instagram preset: Square Post (1080×1080), Story/Reel (1080×1920), or Landscape (1080×566). Use the Cover fit mode to fill the canvas and crop excess, or Contain to fit the whole image with padding.",
+  },
 ];
 
 const headerVariants: Variants = {

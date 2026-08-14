@@ -52,6 +52,7 @@ export const metadata: Metadata = {
     "reduce image size online free",
     "compress jpg to 100kb",
     "compress png to 50kb",
+    "compress png without losing quality",
     "batch image compressor",
     "compress multiple images at once",
     "image optimizer online",
@@ -64,9 +65,16 @@ export const metadata: Metadata = {
     "convert png to webp",
     "convert jpg to webp",
     "convert jpg to avif",
-    "image format converter",
+    "convert image to webp",
+    "convert image to avif",
+    "best image format for web",
+    "png vs webp",
+    "webp vs png",
+    "reduce image size for email",
+    "instagram post size",
+    "instagram story size",
+    "youtube thumbnail size",
     "resize image for instagram",
-    "resize image for social media",
     "resize image to exact dimensions",
     "batch image resizer",
     "resize multiple images at once",
@@ -181,13 +189,6 @@ const softwareAppLd = {
     price: "0",
     priceCurrency: "USD",
   },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.8",
-    ratingCount: "2450",
-    bestRating: "5",
-    worstRating: "1",
-  },
   featureList: [
     "Smart per-image analysis for optimal compression",
     "Three compression modes: Best Quality, Balanced, Max Compress",
@@ -293,6 +294,94 @@ const faqLd = {
         text: "Yes. Pixquish is free to use, with no sign-up required.",
       },
     },
+    {
+      "@type": "Question",
+      name: "How do I compress a PNG without losing quality?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Upload your PNG and choose Best Quality mode. Pixquish keeps the PNG lossless when the output format is PNG (PNG uses lossless compression, so quality is never reduced). For even smaller files, switch the output format to WebP or AVIF — both support lossless modes that can shrink PNGs by 30–50% with zero quality loss.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How do I compress a JPG to 100KB?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Upload your JPG, then use the target file size feature. Pick the 100 KB preset (or type a custom value) and Pixquish runs a binary search over JPEG quality levels to produce a file as close to 100 KB as possible while keeping the best achievable visual quality.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What is the best image format for the web?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "WebP and AVIF are the best modern formats for the web — they produce files 25–50% smaller than JPEG and PNG at the same visual quality. Pixquish can convert your JPG or PNG to WebP or AVIF automatically. For logos and graphics with few colors, PNG stays lossless and crisp. For photos, WebP or AVIF is recommended.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What is the Instagram post size?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Instagram square posts are 1080×1080 pixels, landscape posts are 1080×566 pixels, and portrait posts are 1080×1350 pixels. Instagram Stories and Reels use 1080×1920 pixels. Pixquish includes all these as one-click presets in the Resize tab.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What is the YouTube thumbnail size?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "YouTube thumbnails are 1280×720 pixels (16:9 aspect ratio). Pixquish includes a YouTube Thumbnail preset in the Resize tab — upload your image, pick the preset, and download a perfectly sized thumbnail.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How do I reduce image file size for email?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Upload your image and use the target file size feature set to 200 KB or less — most email providers limit attachments to 25 MB but recommend keeping images under 1 MB. For photos, switching the output to JPEG with Balanced mode gives the smallest files with good quality.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "PNG vs WebP — which is smaller?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "WebP is almost always smaller than PNG — typically 25–35% smaller for the same lossless image, and much smaller for photos (where PNG has no lossy mode). Pixquish can convert PNG to WebP with a single click in the output format selector of either the Compress or Resize tab.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How many images can I compress or resize at once?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Pixquish has no hard limit — you can batch process as many images as your browser can hold in memory. In practice, 50–200 images per batch works smoothly on most devices. Use the checkboxes to process a subset, or Resize/Compress All to handle every uploaded file at once.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Is it safe to use an online image compressor?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Pixquish is the safest kind of online compressor: it runs entirely in your browser using the Canvas API. Your images are never uploaded to a server, never stored, and never seen by anyone. There is no sign-up, no tracking of your files, and no server-side processing — everything happens on your device.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Can I convert images to WebP or AVIF?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes. In either the Compress or Resize tab, change the output format selector to WebP or AVIF. Pixquish will convert your JPG, PNG, WebP, or AVIF input to the chosen format. AVIF typically produces the smallest files, followed by WebP, then JPEG.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How do I resize an image for Instagram?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Switch to the Resize tab, upload your image, then pick an Instagram preset: Square Post (1080×1080), Story/Reel (1080×1920), or Landscape (1080×566). Use the Cover fit mode to fill the canvas and crop excess, or Contain to fit the whole image with padding.",
+      },
+    },
   ],
 };
 
@@ -356,6 +445,114 @@ const websiteLd = {
   },
 };
 
+// HowTo schema — targets "how to compress images" searches. Eligible for
+// step-by-step rich results in Google Search. Mirrors the visible guide.
+const howToCompressLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: "How to Compress Images Online Without Losing Quality",
+  description:
+    "Compress JPG, PNG, WebP, and AVIF images by up to 80% in your browser. No uploads, no sign-up, and your images stay private.",
+  totalTime: "PT2M",
+  estimatedCost: { "@type": "MonetaryAmount", currency: "USD", value: "0" },
+  supply: [{ "@type": "HowToSupply", name: "JPG, PNG, WebP, or AVIF image files" }],
+  tool: [{ "@type": "HowToTool", name: "A modern web browser (Chrome, Firefox, Safari, Edge)" }],
+  step: [
+    {
+      "@type": "HowToStep",
+      position: 1,
+      name: "Upload your images",
+      text: "Drag and drop images onto the upload area, or click to browse your files. Pixquish accepts JPEG, PNG, WebP, and AVIF. You can upload multiple images at once for batch compression.",
+      url: `${siteUrl}/#guide`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 2,
+      name: "Choose a compression mode",
+      text: "Pick Best Quality for minimal loss, Balanced for a smart trade-off, or Max Compress for the smallest possible files. Your choice is remembered across sessions.",
+      url: `${siteUrl}/#guide`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 3,
+      name: "Optionally set a target file size",
+      text: "Need a file under a specific size? Click a preset (20 KB, 50 KB, 100 KB, 200 KB, 500 KB, 1 MB) or type a custom value. Pixquish uses a binary search across quality levels to hit your target.",
+      url: `${siteUrl}/#guide`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 4,
+      name: "Click Compress",
+      text: "Hit the Compress button. Use Compress All for every image, Compress N Selected for checked files, or the per-row button for one image. Everything runs locally in your browser.",
+      url: `${siteUrl}/#guide`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 5,
+      name: "Compare before and after",
+      text: "Each image shows an interactive comparison slider. Drag it to see the difference between original and compressed, scroll to zoom, and drag to pan.",
+      url: `${siteUrl}/#guide`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 6,
+      name: "Download your compressed images",
+      text: "Download individual images or use Download All to grab every processed file. Compressed files are named with a -pixquish suffix so originals are never overwritten.",
+      url: `${siteUrl}/#guide`,
+    },
+  ],
+};
+
+// HowTo schema — targets "how to resize images" searches.
+const howToResizeLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: "How to Resize Images to Exact Dimensions Online",
+  description:
+    "Resize JPG, PNG, WebP, and AVIF images to any width and height in pixels, or pick from 20+ social media presets. Cover, Contain, and Stretch fit modes with aspect ratio lock.",
+  totalTime: "PT1M",
+  estimatedCost: { "@type": "MonetaryAmount", currency: "USD", value: "0" },
+  supply: [{ "@type": "HowToSupply", name: "JPG, PNG, WebP, or AVIF image files" }],
+  tool: [{ "@type": "HowToTool", name: "A modern web browser (Chrome, Firefox, Safari, Edge)" }],
+  step: [
+    {
+      "@type": "HowToStep",
+      position: 1,
+      name: "Switch to the Resize tab",
+      text: "Click the Resize tab above the workspace to open the image resizer. Upload your images by dragging them in or clicking the upload area.",
+      url: `${siteUrl}/#guide`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 2,
+      name: "Set dimensions or pick a preset",
+      text: "Enter exact width and height in pixels, or choose from 20+ presets for Instagram (1080x1080, 1080x1920), X/Twitter, Facebook, YouTube thumbnails, LinkedIn, Pinterest, HD 1080p, 4K UHD, and more.",
+      url: `${siteUrl}/#guide`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 3,
+      name: "Lock aspect ratio and choose a fit mode",
+      text: "Toggle the aspect ratio lock to preserve proportions. Pick Cover (fill and crop excess), Contain (fit inside with padding color), or Stretch (exact dimensions, with a distortion warning if the ratio differs).",
+      url: `${siteUrl}/#guide`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 4,
+      name: "Click Resize",
+      text: "Hit Resize Selected or Resize All. Pixquish uses multi-step downscaling for sharp results, especially when shrinking images significantly.",
+      url: `${siteUrl}/#guide`,
+    },
+    {
+      "@type": "HowToStep",
+      position: 5,
+      name: "Download resized images",
+      text: "Download individual images or use Download All. Files are named with the dimensions, e.g. originalname-1080x1080.jpg, so you always know the output size.",
+      url: `${siteUrl}/#guide`,
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -400,6 +597,14 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToCompressLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToResizeLd) }}
         />
         {/* Pre-hydration listener: captures file selections before React attaches onChange.
             This fixes the issue where the file dialog opens (via native label-for)

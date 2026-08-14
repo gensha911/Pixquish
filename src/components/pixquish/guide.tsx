@@ -176,7 +176,6 @@ const STEPS: GuideStep[] = [
     description:
       "Upload multiple images and process them all at once with the same settings. Select specific files with checkboxes, or process everything. The summary bar shows total progress and results across all images.",
     screenshot: "/guide/07-batch-download.png",
-    compact: true,
     highlights: [
       "Upload as many images as you want at once",
       "Select specific files with checkboxes to process only those",

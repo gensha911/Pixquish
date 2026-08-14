@@ -246,6 +246,12 @@ const ResizeFileItem = React.memo(ResizeFileItemInner, (prev, next) => {
 });
 
 export function ResizeWorkspace() {
+  // Selection state + ref must be declared before useResizeWorkspace so the
+  // ref is available when the hook's auto-resize effect reads it.
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const selectedIdsRef = React.useRef(selectedIds);
+  React.useEffect(() => { selectedIdsRef.current = selectedIds; }, [selectedIds]);
+
   const {
     files,
     options,
@@ -260,14 +266,13 @@ export function ResizeWorkspace() {
     doneCount,
     firstFileDimensions,
     getBitmap,
-  } = useResizeWorkspace();
+  } = useResizeWorkspace(selectedIdsRef);
 
   const hasIdle = files.some((f) => f.status === "idle" || f.status === "error");
   const hasWorking = files.some((f) => f.status === "working");
   const hasFiles = files.length > 0;
 
   const selectableIds = files.map((f) => f.id);
-  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
 
   const toggleSelect = React.useCallback((id: string) => {
     setSelectedIds((prev) => {

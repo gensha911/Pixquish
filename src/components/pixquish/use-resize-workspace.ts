@@ -50,13 +50,18 @@ interface CachedSource {
   bitmap: ImageBitmap;
 }
 
-export function useResizeWorkspace() {
+export function useResizeWorkspace(selectedIdsRef?: React.RefObject<Set<string> | null>) {
   const [files, setFiles] = React.useState<ResizeFile[]>([]);
   const [options, setOptions] = React.useState<ResizeOptions>(DEFAULT_RESIZE_OPTIONS);
   const [showGrid, setShowGrid] = React.useState(false);
   const runningRef = React.useRef(false);
   const isFirstOptionsRef = React.useRef(true);
   const autoTimerRef = React.useRef<ReturnType<typeof setTimeout>>();
+
+  // Latest files snapshot — read by the auto-resize timer so it doesn't use a
+  // stale closure (the effect only depends on optionsSig, not `files`).
+  const filesRef = React.useRef(files);
+  React.useEffect(() => { filesRef.current = files; }, [files]);
 
   // Bitmap cache: keyed by file id. Decoded once on addFiles, reused for both
   // the live preview and the final batch resize. Closed on remove/clear/unmount.
@@ -256,16 +261,26 @@ export function useResizeWorkspace() {
       return;
     }
     if (files.length === 0 || runningRef.current) return;
-    const hasProcessable = files.some((f) => f.status === "idle" || f.status === "done" || f.status === "error");
-    if (!hasProcessable) return;
 
     clearTimeout(autoTimerRef.current);
     autoTimerRef.current = setTimeout(() => {
-      // Reset done files to idle so they get re-processed
+      // Only re-resize done files that are currently selected — mirroring the
+      // compressor's behavior. Idle/deselected files are left untouched; the
+      // live preview shows what the new dimensions will look like instead.
+      const selectedSet = selectedIdsRef?.current;
+      const doneSelectedIds = filesRef.current
+        .filter(
+          (f) => f.status === "done" && (!selectedSet || selectedSet.has(f.id)),
+        )
+        .map((f) => f.id);
+
+      if (doneSelectedIds.length === 0) return;
+
+      // Reset only the selected done files to idle so they get re-processed
       setFiles((prev) => {
         let changed = false;
         const updated = prev.map((f) => {
-          if (f.status === "done" && f.result) {
+          if (doneSelectedIds.includes(f.id) && f.status === "done" && f.result) {
             URL.revokeObjectURL(f.result.url);
             URL.revokeObjectURL(f.result.originalUrl);
             changed = true;
@@ -275,9 +290,9 @@ export function useResizeWorkspace() {
         });
         return changed ? updated : prev;
       });
-      // Wait for state flush then trigger resize
+      // Wait for state flush then trigger resize (only for the selected done ids)
       setTimeout(() => {
-        resizeAllRef.current();
+        resizeAllRef.current(doneSelectedIds);
       }, 0);
     }, 400);
 

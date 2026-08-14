@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Eye, ArrowRight } from "lucide-react";
-import { ComparisonSlider } from "./comparison-slider";
+import { Loader2, ArrowRight } from "lucide-react";
 import { formatBytes } from "@/lib/compression";
 import type { ResizeResult } from "@/lib/compression/resizer";
 import { cn } from "@/lib/utils";
@@ -46,6 +45,46 @@ function RuleOfThirdsGrid() {
   );
 }
 
+/** Simple image preview with transparency/background handling — no comparison line. */
+export function ResizeImagePreview({
+  src,
+  alt,
+  backgroundColor,
+  hasTransparency,
+  showGrid,
+  className,
+}: {
+  src: string;
+  alt: string;
+  backgroundColor?: string | null;
+  hasTransparency?: boolean;
+  showGrid?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "relative aspect-video w-full select-none overflow-hidden rounded-xl",
+        hasTransparency ? "checkerboard" : "",
+        className,
+      )}
+      style={
+        backgroundColor && !hasTransparency
+          ? { backgroundColor }
+          : undefined
+      }
+    >
+      <img
+        src={src}
+        alt={alt}
+        className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+        draggable={false}
+      />
+      {showGrid && <RuleOfThirdsGrid />}
+    </div>
+  );
+}
+
 export function ResizePreview({ preview, isGenerating, alt, backgroundColor, hasTransparency, showGrid }: ResizePreviewProps) {
   if (isGenerating && !preview) {
     return (
@@ -69,24 +108,14 @@ export function ResizePreview({ preview, isGenerating, alt, backgroundColor, has
 
   return (
     <div className="space-y-2.5">
-      {/* LIVE badge + comparison slider */}
-      <div className="relative overflow-hidden rounded-xl">
-        <span className="absolute top-2 left-2 z-30 flex items-center gap-1 rounded-md border border-brand/40 bg-brand/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm backdrop-blur">
-          <Eye className="size-3" />
-          Live
-        </span>
-        <ComparisonSlider
-          beforeSrc={preview.originalUrl}
-          afterSrc={preview.url}
-          alt={alt}
-          beforeLabel="Original"
-          afterLabel="Preview"
-          backgroundColor={backgroundColor}
-          hasTransparency={hasTransparency}
-        />
-        {/* Rule-of-thirds grid overlay — preview only, never exported */}
-        {showGrid && <RuleOfThirdsGrid />}
-      </div>
+      {/* Preview image only — no comparison line */}
+      <ResizeImagePreview
+        src={preview.url}
+        alt={alt}
+        backgroundColor={backgroundColor}
+        hasTransparency={hasTransparency}
+        showGrid={showGrid}
+      />
 
       {/* Stats row */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">

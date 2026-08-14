@@ -22,8 +22,7 @@ import { UploadCard } from "./upload-card";
 import { ResizeControls } from "./resize-controls";
 import { useResizeWorkspace, type ResizeFile } from "./use-resize-workspace";
 import { useResizePreview } from "./use-resize-preview";
-import { ResizePreview } from "./resize-preview";
-import { ComparisonSlider } from "./comparison-slider";
+import { ResizePreview, ResizeImagePreview } from "./resize-preview";
 import { cn } from "@/lib/utils";
 import { formatBytes } from "@/lib/compression";
 
@@ -189,16 +188,12 @@ function ResizeFileItemInner({
         </div>
       )}
 
-      {/* Done result — comparison slider + stats */}
+      {/* Done result — preview image + stats */}
       {status === "done" && result && (
         <div className="space-y-3 p-4 sm:p-5">
-          <ComparisonSlider
-            beforeSrc={result.originalUrl}
-            afterSrc={result.url}
+          <ResizeImagePreview
+            src={result.url}
             alt={name}
-            beforeLabel="Original"
-            afterLabel="Resized"
-            className="w-full"
             backgroundColor={item.dominantColor}
             hasTransparency={item.hasTransparency}
           />

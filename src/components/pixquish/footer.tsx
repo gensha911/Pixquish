@@ -22,7 +22,8 @@ const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     links: [
       { label: "How it works", href: "#how-it-works" },
       { label: "Guide", href: "#guide" },
-     { label: "Privacy", href: "/privacy" },
+      { label: "Blog", href: "/blog" },
+      { label: "Privacy", href: "/privacy" },
     ],
   },
     {

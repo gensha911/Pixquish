@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Gauge, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/pixquish/theme-toggle";
 import { cn } from "@/lib/utils";
@@ -8,6 +9,7 @@ import { cn } from "@/lib/utils";
 const NAV_LINKS = [
   { href: "#workspace", label: "Compress" },
   { href: "#resize", label: "Resize" },
+  { href: "/blog", label: "Blog" },
   { href: "#features", label: "Features" },
   { href: "#faq", label: "FAQ" },
 ] as const;
@@ -39,15 +41,19 @@ export function Navbar({ className }: { className?: string }) {
 
         {/* Center nav links (md+) */}
         <div className="hidden items-center gap-7 md:flex">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {link.label}
-            </a>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isRoute = link.href.startsWith("/");
+            const className = "text-sm text-muted-foreground transition-colors hover:text-foreground";
+            return isRoute ? (
+              <Link key={link.href} href={link.href} className={className}>
+                {link.label}
+              </Link>
+            ) : (
+              <a key={link.href} href={link.href} className={className}>
+                {link.label}
+              </a>
+            );
+          })}
         </div>
 
         {/* Right cluster */}

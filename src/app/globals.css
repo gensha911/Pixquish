@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -398,4 +399,123 @@ nextjs-portal {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
   }
+}
+
+/* ── Blog prose styling ──────────────────────────────────────────────
+   Customizes @tailwindcss/typography to match the Pixquish brand:
+   - Brand-colored headings and links
+   - Subtle borders and spacing
+   - Code blocks with muted background
+   - Works in light + dark mode
+*/
+.prose-pixquish {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: var(--brand);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--muted-foreground);
+  --tw-prose-bullets: var(--brand);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--brand);
+  --tw-prose-captions: var(--muted-foreground);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-pre-code: oklch(0.95 0 0);
+  --tw-prose-pre-bg: oklch(0.17 0.008 168);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+  max-width: none;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+.prose-pixquish h1,
+.prose-pixquish h2,
+.prose-pixquish h3,
+.prose-pixquish h4 {
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  scroll-margin-top: 6rem;
+}
+.prose-pixquish h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+.prose-pixquish h3 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+}
+.prose-pixquish a {
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in oklch, var(--brand) 40%, transparent);
+  transition: text-decoration-color 0.15s;
+}
+.prose-pixquish a:hover {
+  text-decoration-color: var(--brand);
+}
+.prose-pixquish code {
+  background: var(--muted);
+  padding: 0.15em 0.4em;
+  border-radius: 0.35rem;
+  font-size: 0.875em;
+  font-weight: 500;
+}
+.prose-pixquish pre {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+}
+.prose-pixquish pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.875rem;
+}
+.prose-pixquish blockquote {
+  font-style: normal;
+  font-weight: 500;
+  border-left-width: 3px;
+  padding-left: 1.25rem;
+  color: var(--foreground);
+}
+.prose-pixquish table {
+  font-size: 0.9375rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 0.6rem;
+  border: 1px solid var(--border);
+}
+.prose-pixquish th {
+  background: var(--muted);
+  font-weight: 600;
+}
+.prose-pixquish th,
+.prose-pixquish td {
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+.prose-pixquish tr:last-child td {
+  border-bottom: none;
+}
+.prose-pixquish img {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+}
+.prose-pixquish ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+.prose-pixquish ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+}
+.prose-pixquish li::marker {
+  color: var(--brand);
 }

@@ -1,10 +1,27 @@
+import Link from "next/link";
 import { Gauge } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { getCompressPages, getResizePages, getLandingPagePath } from "@/lib/landing-pages";
+
+/** Title-case a slug like "instagram-post" → "Instagram Post". */
+function titleCase(slug: string): string {
+  return slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+interface FooterLink {
+  label: string;
+  href: string;
+  /** Whether the href is an internal route (uses Next.js Link) or a hash/external URL (uses plain <a>). */
+  isRoute?: boolean;
+}
 
 interface FooterLinkGroup {
   title: string;
-  links: { label: string; href: string }[];
+  links: FooterLink[];
 }
 
 const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
@@ -18,15 +35,31 @@ const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     ],
   },
   {
+    title: "Compress",
+    links: getCompressPages().map((page) => ({
+      label: page.format ? page.format.toUpperCase() : page.slug,
+      href: getLandingPagePath(page),
+      isRoute: true,
+    })),
+  },
+  {
+    title: "Resize",
+    links: getResizePages().map((page) => ({
+      label: titleCase(page.slug),
+      href: getLandingPagePath(page),
+      isRoute: true,
+    })),
+  },
+  {
     title: "Resources",
     links: [
       { label: "How it works", href: "#how-it-works" },
       { label: "Guide", href: "#guide" },
-      { label: "Blog", href: "/blog" },
-      { label: "Privacy", href: "/privacy" },
+      { label: "Blog", href: "/blog", isRoute: true },
+      { label: "Privacy", href: "/privacy", isRoute: true },
     ],
   },
-    {
+  {
     title: "Company",
     links: [
       { label: "About", href: "#" },
@@ -41,7 +74,7 @@ export function Footer({ className }: { className?: string }) {
       className={cn("mt-auto border-t border-border/60 bg-background", className)}
     >
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           {/* Brand block */}
           <div className="col-span-2 md:col-span-1">
             <a
@@ -73,12 +106,21 @@ export function Footer({ className }: { className?: string }) {
               <ul className="flex flex-col gap-2.5">
                 {group.links.map((link) => (
                   <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                    </a>
+                    {link.isRoute ? (
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

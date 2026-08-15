@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { siteUrl } from '@/lib/site-url';
 import { getAllPosts } from '@/lib/blog';
+import { getAllLandingPages, getLandingPagePath } from '@/lib/landing-pages';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -27,6 +28,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
+  // Landing-page index routes (compress + resize)
+  const landingIndexRoutes: MetadataRoute.Sitemap = [
+    {
+      url: `${siteUrl}/compress`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${siteUrl}/resize`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+  ];
+
+  // Programmatic landing pages (compress/[format] + resize/[platform])
+  const landingRoutes: MetadataRoute.Sitemap = getAllLandingPages().map(
+    (page) => ({
+      url: `${siteUrl}${getLandingPagePath(page)}`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    }),
+  );
+
   // Dynamic blog article routes
   const posts = getAllPosts();
   const articleRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
@@ -36,5 +63,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...articleRoutes];
+  return [
+    ...staticRoutes,
+    ...landingIndexRoutes,
+    ...landingRoutes,
+    ...articleRoutes,
+  ];
 }

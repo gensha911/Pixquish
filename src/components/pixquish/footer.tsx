@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gauge } from "lucide-react";
+import { Gauge, Instagram, Github } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { getCompressPages, getResizePages, getLandingPagePath } from "@/lib/landing-pages";
@@ -64,6 +64,7 @@ const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     links: [
       { label: "About", href: "#" },
       { label: "GitHub", href: "https://github.com/gensha911" },
+      { label: "Instagram", href: "https://www.instagram.com/pixquish/" },
       { label: "Contact", href: "mailto:gensha911@gmail.com" },
     ],
   },
@@ -91,6 +92,27 @@ export function Footer({ className }: { className?: string }) {
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               Compress and resize images, privately in your browser.
             </p>
+            {/* Social icons */}
+            <div className="mt-4 flex items-center gap-2">
+              <a
+                href="https://www.instagram.com/pixquish/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Pixquish on Instagram"
+                className="inline-flex size-8 items-center justify-center rounded-lg border border-border/60 bg-card/40 text-muted-foreground transition-colors hover:border-brand/40 hover:text-foreground"
+              >
+                <Instagram className="size-4" />
+              </a>
+              <a
+                href="https://github.com/gensha911"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Pixquish on GitHub"
+                className="inline-flex size-8 items-center justify-center rounded-lg border border-border/60 bg-card/40 text-muted-foreground transition-colors hover:border-brand/40 hover:text-foreground"
+              >
+                <Github className="size-4" />
+              </a>
+            </div>
           </div>
 
           {/* Link columns */}
@@ -116,6 +138,12 @@ export function Footer({ className }: { className?: string }) {
                     ) : (
                       <a
                         href={link.href}
+                        // External links (https/mailto) open in a new tab for security + UX.
+                        // Hash links (#) stay in-tab.
+                        {...(link.href.startsWith("http") ||
+                        link.href.startsWith("mailto")
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
                         className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                       >
                         {link.label}

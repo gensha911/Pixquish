@@ -420,7 +420,10 @@ const organizationLd = {
   logo: `${siteUrl}/og-image.png`,
   description:
     "Pixquish is a free online image compressor and resizer. Compress and resize JPG, PNG, WebP, and AVIF images entirely in the browser — no uploads, no server-side processing.",
-  sameAs: ["https://github.com/gensha911"],
+  sameAs: [
+    "https://github.com/gensha911",
+    "https://www.instagram.com/pixquish/",
+  ],
   contactPoint: {
     "@type": "ContactPoint",
     contactType: "customer support",

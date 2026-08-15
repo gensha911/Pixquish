@@ -9,6 +9,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { format } from "date-fns";
 import { getAllSlugs, getPostBySlug } from "@/lib/blog";
 import { siteUrl } from "@/lib/site-url";
+import { rehypeAutoLinkKeywords } from "@/lib/blog-auto-link";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -170,10 +171,21 @@ export default async function BlogArticlePage({ params }: PageProps) {
               rehypePlugins={[
                 rehypeSlug,
                 [rehypeAutolinkHeadings, { behavior: "wrap", properties: { className: ["heading-anchor"] } }],
+                // Auto-link the first occurrence of each known keyword phrase
+                // (e.g. "compress PNG", "YouTube thumbnail size") to the
+                // matching programmatic landing page. Runs last so heading
+                // anchors from rehype-slug/autolink-headings are already in
+                // place and untouched. Injected <a> elements flow through the
+                // components.a override below (Next.js Link for /-prefixed
+                // URLs, target=_blank for external).
+                rehypeAutoLinkKeywords,
               ]}
               components={{
                 // Render links with proper Next.js Link for internal navigation
-                a: ({ href, children, ...props }) => {
+                // `node` is the HAST node from react-markdown/rehype — strip it
+                // before spreading the rest onto the DOM element, otherwise it
+                // leaks as node="[object Object]" in the rendered HTML.
+                a: ({ href, children, node: _node, ...props }) => {
                   const isInternal = href?.startsWith("/") || href?.startsWith("#");
                   if (isInternal && href) {
                     return (
@@ -189,7 +201,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
                   );
                 },
                 // Ensure images are responsive
-                img: ({ src, alt, ...props }) => (
+                img: ({ src, alt, node: _node, ...props }) => (
                   <img src={src} alt={alt || ""} loading="lazy" {...props} />
                 ),
               }}

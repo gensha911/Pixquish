@@ -976,6 +976,736 @@ const LANDING_PAGES: LandingPage[] = [
     ctaLabel: "Resize for LinkedIn Banner",
     relatedBlogSlugs: [],
   },
+
+  // ── Batch 2: Resize pages (more presets) ───────────────────────────────
+  {
+    slug: "pinterest-pin",
+    type: "resize",
+    platform: "Pinterest Pin",
+    h1: "Resize image for Pinterest Pin (1000×1500)",
+    title: "Resize Image for Pinterest Pin (1000×1500) | Pixquish",
+    description:
+      "Pinterest pin size is 1000×1500 pixels (2:3). Resize your image for Pinterest in your browser — free, private, no uploads. Pick the Pinterest Pin preset.",
+    keyword: "pinterest pin size",
+    targetDimensions: { width: 1000, height: 1500, unit: "px" },
+    heroLead:
+      "Pinterest pins display best at 1000×1500 pixels (2:3 portrait). Pixquish resizes your image to exactly that with Cover, Contain, or Stretch fit modes — 100% in your browser, nothing uploaded.",
+    whyUse: [
+      SHARED_PRIVACY_WHY,
+      {
+        title: "Perfect 2:3 ratio for the Pinterest feed",
+        body: "Pinterest's algorithm favours pins in the 2:3 vertical ratio. Pick the Pinterest Pin preset and Pixquish sets the canvas to exactly 1000×1500 pixels — the size Pinterest recommends for sharp display in feeds, boards, and search results.",
+      },
+      {
+        title: "Cover, Contain, or Stretch fit",
+        body: "Cover fills the portrait canvas and center-crops the excess — best for horizontal photos. Contain fits the whole image inside with padding (good for square originals). Stretch fills the canvas exactly (with a distortion warning if the aspect ratio differs).",
+      },
+      {
+        title: "Crisp at feed size and zoomed-in",
+        body: "Pinterest serves your pin at small feed sizes but users tap to zoom. Pixquish uses multi-step downscaling and an optional unsharp mask so the image stays sharp at both — no mushy edges, no jagged text.",
+      },
+    ],
+    howToSteps: [
+      {
+        name: "Open the Resize tab",
+        text: "Click the Resize Images button above, or scroll to the Resize workspace at the bottom of the page. Switch from the Compress tab if needed.",
+      },
+      {
+        name: "Upload your image",
+        text: "Drag a photo onto the resize drop zone, or click to pick one from your device. JPG, PNG, WebP, and AVIF are all accepted.",
+      },
+      {
+        name: "Pick the Pinterest Pin preset",
+        text: "In the preset dropdown, find Social → Pinterest Pin (1000×1500). The canvas is set to exactly 1000×1500 and the aspect lock engages automatically.",
+      },
+      {
+        name: "Choose a fit mode",
+        text: "Pick Cover to fill the portrait canvas and crop excess (best for landscape photos), Contain to fit the whole image with padding (good for square or vertical originals), or Stretch to fill exactly. Use the cover offset sliders to choose which part stays in frame.",
+      },
+      {
+        name: "Resize and download",
+        text: "Click Resize. Pixquish processes the image in your browser using a multi-step downscale for sharp results, then lets you download it with one click. Tip: switch to the Compress tab to keep the file under 2 MB for faster loading.",
+      },
+    ],
+    specs: [
+      { label: "Recommended size", value: "1000 × 1500 pixels" },
+      { label: "Aspect ratio", value: "2:3 (portrait)" },
+      { label: "Minimum size", value: "600 × 900 pixels" },
+      { label: "Max file size", value: "Keep under 2 MB for fast loading" },
+      { label: "Best format", value: "PNG for graphics with text, JPG for photos" },
+      { label: "Best fit mode", value: "Cover for landscape photos, Contain to preserve whole image" },
+    ],
+    faqs: [
+      {
+        question: "What size is a Pinterest pin?",
+        answer:
+          "Pinterest pins display best at 1000×1500 pixels — a 2:3 vertical aspect ratio. Pinterest's minimum is 600×900 pixels, but 1000×1500 gives the sharpest result on retina displays and in the Pinterest feed. Pixquish has a Pinterest Pin preset at exactly 1000×1500 — pick it from the Social group in the preset dropdown.",
+      },
+      {
+        question: "What's the best aspect ratio for Pinterest pins?",
+        answer:
+          "Pinterest's algorithm favours pins in the 2:3 vertical ratio (like 1000×1500). Taller ratios (like 1:3) may get cut off in the feed, and shorter ratios (like 1:1) get less reach. The Pinterest Pin preset in Pixquish locks the canvas to 2:3 so you don't have to think about it.",
+      },
+      {
+        question: "Should I use PNG or JPG for Pinterest?",
+        answer:
+          "Use JPG for photos — smaller files, no visible quality difference at Pinterest's display sizes, and faster loading in feeds. Use PNG for pins with text overlays, logos, or sharp graphics (PNG keeps text crisp). Pixquish can convert your image to either format during the resize, or compress it after if the file is over 2 MB.",
+      },
+      {
+        question: "How do I resize an image for Pinterest without cropping?",
+        answer:
+          "Pick the Pinterest Pin preset (1000×1500) and choose the Contain fit mode. Pixquish fits your entire image inside the portrait canvas with optional padding (solid color or blurred background) so nothing is cropped. Switch to Cover if you'd rather fill the canvas and crop the excess.",
+      },
+      {
+        question: "Why is my Pinterest pin blurry?",
+        answer:
+          "Pinterest downscales any image larger than 1000×1500, which can introduce blur. Uploading a much smaller image also makes it blurry when users tap to zoom. Resizing in Pixquish first — with multi-step downscaling and optional sharpening — produces a sharper result than letting Pinterest do it. Keep the file size under 2 MB so it loads fast.",
+      },
+      {
+        question: "Is this Pinterest resizer free?",
+        answer:
+          "Yes. Pixquish is completely free, with no sign-up, no watermark, and no daily limit. Everything runs in your browser using the Canvas API — your photos never touch a server.",
+      },
+    ],
+    ctaHref: "#resize",
+    ctaLabel: "Resize for Pinterest Pin",
+    relatedBlogSlugs: ["instagram-image-sizes-2026"],
+  },
+  {
+    slug: "favicon",
+    type: "resize",
+    platform: "Favicon",
+    h1: "Make a favicon from any image (256×256)",
+    title: "Make a Favicon Online — Free Favicon Maker | Pixquish",
+    description:
+      "Favicon size guide: make a favicon at 256×256 from any image — free, private, no uploads. Pixquish outputs crisp favicons for web, PWA, and touch icons.",
+    keyword: "favicon size",
+    targetDimensions: { width: 256, height: 256, unit: "px" },
+    heroLead:
+      "Favicons display at 16×16 in browser tabs but the recommended source size is 256×256 pixels so it stays crisp on high-DPI screens, as an Apple touch icon, and as a PWA icon. Pixquish resizes your image to a square favicon — 100% in your browser, nothing uploaded.",
+    whyUse: [
+      SHARED_PRIVACY_WHY,
+      {
+        title: "Crisp at 16×16 and sharp at 256×256",
+        body: "A favicon is shown at tiny sizes where every pixel counts. Pixquish's multi-step downscaling keeps edges sharp so text and logos are still readable at 16×16 — and the same 256×256 file stays sharp when shown larger as a PWA or touch icon.",
+      },
+      {
+        title: "Pick PNG for crisp edges, no JPG ringing",
+        body: "PNG is the right format for favicons because it's lossless and supports transparency — no JPEG ringing around text or logos. Pixquish lets you pick PNG as the output format during the resize, or keep WebP/AVIF for smaller app-style icons.",
+      },
+      {
+        title: "Square canvas with cover, contain, or stretch",
+        body: "The Favicon preset locks the canvas to exactly 256×256. Pick Cover to fill the square and crop excess (best for landscape logos), Contain to fit the whole image with padding (good for non-square logos with whitespace), or Stretch to fill exactly.",
+      },
+    ],
+    howToSteps: [
+      {
+        name: "Open the Resize tab",
+        text: "Click the Resize Images button above, or scroll to the Resize workspace at the bottom of the page. Switch from the Compress tab if needed.",
+      },
+      {
+        name: "Upload your image",
+        text: "Drag a logo or photo onto the resize drop zone, or click to pick one from your device. JPG, PNG, WebP, and AVIF are all accepted. PNG with transparency works best for favicons.",
+      },
+      {
+        name: "Pick the Favicon preset",
+        text: "In the preset dropdown, find Web → Favicon (256×256). The canvas is set to exactly 256×256 and the aspect lock engages automatically.",
+      },
+      {
+        name: "Choose PNG output and a fit mode",
+        text: "Pick PNG as the output format so the favicon stays crisp and supports transparency. Then choose Cover to fill the square and crop excess (best for non-square logos), Contain to fit the whole logo with padding, or Stretch to fill exactly. Use the cover offset sliders to position the crop.",
+      },
+      {
+        name: "Resize and download",
+        text: "Click Resize. Pixquish processes the image in your browser using a multi-step downscale for sharp results at small sizes, then lets you download the PNG with one click. Add it to your site's <link rel=\"icon\"> tag.",
+      },
+    ],
+    specs: [
+      { label: "Recommended size", value: "256 × 256 pixels (source)" },
+      { label: "Aspect ratio", value: "1:1 (square)" },
+      { label: "Common sizes", value: "16×16, 32×32, 48×48, 180×180 (Apple touch), 192×192 (Android), 256×256 (PWA)" },
+      { label: "Best format", value: "PNG (lossless, transparency, no JPG ringing)" },
+      { label: "Best fit mode", value: "Contain to preserve whole logo, Cover for full-bleed" },
+      { label: "Max file size", value: "Keep under 10 KB — favicons load on every page" },
+    ],
+    faqs: [
+      {
+        question: "What size is a favicon?",
+        answer:
+          "Favicons display at 16×16 pixels in browser tabs and 32×32 pixels on newer high-DPI screens. The recommended source size is 256×256 pixels — large enough to look crisp as an Apple touch icon (180×180), an Android home-screen icon (192×192), and a PWA icon. Pixquish has a Favicon preset at exactly 256×256.",
+      },
+      {
+        question: "What format should a favicon be?",
+        answer:
+          "PNG is the right format for favicons. It's lossless, supports transparency, and avoids the ringing artifacts that JPEG introduces around text and logos. Modern browsers also accept SVG favicons, but Pixquish outputs raster PNG, JPG, WebP, or AVIF — pick PNG in the output selector for the crispest result.",
+      },
+      {
+        question: "How do I make a favicon from an image?",
+        answer:
+          "Upload your image to the Pixquish Resize tab, pick the Favicon preset (256×256), choose PNG as the output format, and pick the Contain fit mode if your logo isn't square (so nothing is cropped). Click Resize and download the PNG. Add it to your site with <link rel=\"icon\" type=\"image/png\" href=\"/favicon.png\">.",
+      },
+      {
+        question: "What's the Apple touch icon size?",
+        answer:
+          "The Apple touch icon is 180×180 pixels. The Android home-screen icon is 192×192, and the PWA icon is 512×512 (with 192×192 as a fallback). Uploading a single 256×256 source favicon and letting each platform downscale it works well — and Pixquish's multi-step downscaling produces sharper results than letting the browser do it.",
+      },
+      {
+        question: "Do favicons need to be square?",
+        answer:
+          "Yes. Favicons are always displayed in a square aspect ratio in browser tabs, bookmarks, and home screens. Non-square favicons get cropped by the browser, often awkwardly. Use Pixquish's Favicon preset (256×256) and choose Contain if your logo is not square — it will be padded with whitespace rather than cropped.",
+      },
+      {
+        question: "Is this favicon maker free?",
+        answer:
+          "Yes. Pixquish is completely free, with no sign-up, no watermark, and no daily limit. Everything runs in your browser using the Canvas API — your images never touch a server.",
+      },
+    ],
+    ctaHref: "#resize",
+    ctaLabel: "Make a favicon now",
+    relatedBlogSlugs: ["best-image-format-for-web"],
+  },
+  {
+    slug: "twitter-post",
+    type: "resize",
+    platform: "X / Twitter Post",
+    h1: "Resize image for X / Twitter Post (1600×900)",
+    title: "Resize Image for X / Twitter Post (1600×900) | Pixquish",
+    description:
+      "Twitter post size is 1600×900 pixels (16:9). Resize your image for X / Twitter in your browser — free, private, no uploads. Pick the X / Twitter Post preset.",
+    keyword: "twitter post size",
+    targetDimensions: { width: 1600, height: 900, unit: "px" },
+    heroLead:
+      "X / Twitter post images display best at 1600×900 pixels (16:9). Pixquish resizes your image to exactly that with Cover, Contain, or Stretch fit modes — 100% in your browser, nothing uploaded.",
+    whyUse: [
+      SHARED_PRIVACY_WHY,
+      {
+        title: "Exact 1600×900 every time",
+        body: "Pick the X / Twitter Post preset and Pixquish sets the canvas to exactly 1600×900 pixels — the 16:9 size X displays in the timeline and on the post detail page. No math, no guesswork.",
+      },
+      {
+        title: "Cover, Contain, or Stretch fit",
+        body: "Cover fills the 16:9 canvas and center-crops the excess — best for portrait photos or vertical designs. Contain fits the whole image inside with padding. Stretch fills the canvas exactly (with a distortion warning if the aspect ratio differs).",
+      },
+      {
+        title: "Adjustable crop position",
+        body: "The 16:9 ratio crops portrait and 4:5 images heavily. Pixquish lets you slide the cover crop vertically and horizontally so the most important part of your image — face, headline, logo — stays in frame.",
+      },
+    ],
+    howToSteps: [
+      {
+        name: "Open the Resize tab",
+        text: "Click the Resize Images button above, or scroll to the Resize workspace at the bottom of the page. Switch from the Compress tab if needed.",
+      },
+      {
+        name: "Upload your image",
+        text: "Drag a photo or design onto the resize drop zone, or click to pick one from your device. JPG, PNG, WebP, and AVIF are all accepted.",
+      },
+      {
+        name: "Pick the X / Twitter Post preset",
+        text: "In the preset dropdown, find Social → X / Twitter Post (1600×900). The canvas is set to exactly 1600×900 and the aspect lock engages automatically.",
+      },
+      {
+        name: "Choose a fit mode and adjust crop",
+        text: "Pick Cover to fill the 16:9 canvas and crop excess (best for portrait images), Contain to fit the whole image with padding, or Stretch to fill exactly. Use the cover offset sliders to position the crop so the key subject stays in frame.",
+      },
+      {
+        name: "Resize and download",
+        text: "Click Resize. Pixquish processes the image in your browser using a multi-step downscale for sharp results, then lets you download it with one click. Tip: keep the file under 5 MB so X accepts it without further recompression.",
+      },
+    ],
+    specs: [
+      { label: "Recommended size", value: "1600 × 900 pixels" },
+      { label: "Aspect ratio", value: "16:9 (widescreen)" },
+      { label: "Minimum size", value: "600 × 335 pixels" },
+      { label: "Max file size", value: "5 MB (X / Twitter limit)" },
+      { label: "Best format", value: "JPG for photos, PNG for graphics with text" },
+      { label: "Best fit mode", value: "Cover for portrait originals, Contain to preserve whole image" },
+    ],
+    faqs: [
+      {
+        question: "What is the X / Twitter post size?",
+        answer:
+          "X / Twitter post images display best at 1600×900 pixels — a 16:9 aspect ratio. The minimum is 600×335 pixels, and the maximum file size is 5 MB. Pixquish has an X / Twitter Post preset at exactly 1600×900 — pick it from the Social group in the preset dropdown.",
+      },
+      {
+        question: "Why does my Twitter post image look cropped?",
+        answer:
+          "X crops images to 16:9 in the timeline and on the post detail page. Portrait or 4:5 images get cropped heavily — sometimes the most important part of the image ends up cut off. Pick the X / Twitter Post preset (1600×900) and use the Cover fit mode with adjustable offset so you choose what stays in frame, rather than letting X decide.",
+      },
+      {
+        question: "How do I resize a portrait photo for a 16:9 Twitter post?",
+        answer:
+          "Pick the X / Twitter Post preset (1600×900) and choose the Cover fit mode — Pixquish fills the 16:9 canvas with your portrait photo and crops the top and bottom. Use the cover offset Y slider to keep the subject (face, product) in frame. Switch to Contain if you'd rather fit the whole photo with padding.",
+      },
+      {
+        question: "What happens if my Twitter post image is over 5 MB?",
+        answer:
+          "X rejects images over 5 MB. After resizing to 1600×900 in Pixquish, switch to the Compress tab to bring the file under the limit — or use the target file size feature to hit a specific size like 1 MB. JPG typically produces the smallest files.",
+      },
+      {
+        question: "What's the best format for an X / Twitter post?",
+        answer:
+          "Use JPG for photos — smaller files, no visible quality difference at the sizes X displays. Use PNG for graphics with text, logos, or sharp edges (PNG keeps text crisp and avoids JPEG ringing). Pixquish can convert your image to either format during the resize.",
+      },
+      {
+        question: "Is this X / Twitter post resizer free?",
+        answer:
+          "Yes. Pixquish is completely free, with no sign-up, no watermark, and no daily limit. Everything runs in your browser using the Canvas API — your images never touch a server.",
+      },
+    ],
+    ctaHref: "#resize",
+    ctaLabel: "Resize for X / Twitter Post",
+    relatedBlogSlugs: ["instagram-image-sizes-2026"],
+  },
+  {
+    slug: "facebook-post",
+    type: "resize",
+    platform: "Facebook Post",
+    h1: "Resize image for Facebook Post (1200×630)",
+    title: "Resize Image for Facebook Post (1200×630) | Pixquish",
+    description:
+      "Facebook post size is 1200×630 pixels (1.91:1). Resize your image for Facebook in your browser — free, private, no uploads. Pick the Facebook Post preset.",
+    keyword: "facebook post size",
+    targetDimensions: { width: 1200, height: 630, unit: "px" },
+    heroLead:
+      "Facebook posts and link previews display at 1200×630 pixels (1.91:1). Pixquish resizes your image to exactly that with Cover, Contain, or Stretch fit modes — 100% in your browser, nothing uploaded.",
+    whyUse: [
+      SHARED_PRIVACY_WHY,
+      {
+        title: "Exact 1200×630 every time",
+        body: "Pick the Facebook Post preset and Pixquish sets the canvas to exactly 1200×630 pixels — the size Facebook uses for feed posts, link previews, and Open Graph images. No math, no guesswork.",
+      },
+      {
+        title: "Cover, Contain, or Stretch fit",
+        body: "Cover fills the 1.91:1 canvas and center-crops the excess — best for portrait photos. Contain fits the whole image inside with padding (good for square originals). Stretch fills the canvas exactly (with a distortion warning if the aspect ratio differs).",
+      },
+      {
+        title: "Also the right size for Open Graph images",
+        body: "1200×630 is the Open Graph image size — the preview shown when your link is shared on Facebook, LinkedIn, Slack, and most messaging apps. One preset gives you a correctly sized image for every share surface.",
+      },
+    ],
+    howToSteps: [
+      {
+        name: "Open the Resize tab",
+        text: "Click the Resize Images button above, or scroll to the Resize workspace at the bottom of the page. Switch from the Compress tab if needed.",
+      },
+      {
+        name: "Upload your image",
+        text: "Drag a photo or design onto the resize drop zone, or click to pick one from your device. JPG, PNG, WebP, and AVIF are all accepted.",
+      },
+      {
+        name: "Pick the Facebook Post preset",
+        text: "In the preset dropdown, find Social → Facebook Post (1200×630). The canvas is set to exactly 1200×630 and the aspect lock engages automatically.",
+      },
+      {
+        name: "Choose a fit mode and adjust crop",
+        text: "Pick Cover to fill the 1.91:1 canvas and crop excess (best for portrait images), Contain to fit the whole image with padding, or Stretch to fill exactly. Use the cover offset sliders to position the crop so the key subject stays in frame.",
+      },
+      {
+        name: "Resize and download",
+        text: "Click Resize. Pixquish processes the image in your browser using a multi-step downscale for sharp results, then lets you download it with one click. Tip: keep the file under 1 MB for fast feed loading.",
+      },
+    ],
+    specs: [
+      { label: "Recommended size", value: "1200 × 630 pixels" },
+      { label: "Aspect ratio", value: "1.91:1 (link preview)" },
+      { label: "Minimum size", value: "600 × 315 pixels" },
+      { label: "Max file size", value: "Keep under 1 MB for fast feed loading" },
+      { label: "Best format", value: "JPG for photos, PNG for graphics with text" },
+      { label: "Best fit mode", value: "Cover for portrait originals, Contain to preserve whole image" },
+    ],
+    faqs: [
+      {
+        question: "What is the Facebook post size?",
+        answer:
+          "Facebook feed posts and link previews display at 1200×630 pixels — a 1.91:1 aspect ratio. The minimum is 600×315 pixels. Pixquish has a Facebook Post preset at exactly 1200×630 — pick it from the Social group in the preset dropdown. The same size works for Open Graph images used by other platforms too.",
+      },
+      {
+        question: "Why does my Facebook post image look different on mobile?",
+        answer:
+          "Facebook crops images differently on desktop vs mobile — mobile shows a slightly taller crop from the center of your image. Keep important content (logos, faces, text) in the central horizontal band and avoid the very top and bottom edges. Pixquish's Cover fit mode with adjustable crop offset lets you choose what stays in the safe zone.",
+      },
+      {
+        question: "How do I resize a portrait photo for a 1.91:1 Facebook post?",
+        answer:
+          "Pick the Facebook Post preset (1200×630) and choose the Cover fit mode — Pixquish fills the 1.91:1 canvas with your portrait photo and crops the top and bottom. Use the cover offset Y slider to keep the subject (face, product) in frame. Switch to Contain if you'd rather fit the whole photo with padding.",
+      },
+      {
+        question: "Is 1200×630 the right size for Open Graph images too?",
+        answer:
+          "Yes. 1200×630 is the Open Graph image size — the preview shown when your link is shared on Facebook, LinkedIn, Slack, Discord, and most messaging apps. One Facebook Post preset gives you a correctly sized image for every share surface.",
+      },
+      {
+        question: "What's the best format for a Facebook post?",
+        answer:
+          "Use JPG for photos — smaller files, no visible quality difference at Facebook's display sizes. Use PNG for graphics with text, logos, or sharp edges. Pixquish can convert your image to either format during the resize, or compress it after if the file is over 1 MB.",
+      },
+      {
+        question: "Is this Facebook post resizer free?",
+        answer:
+          "Yes. Pixquish is completely free, with no sign-up, no watermark, and no daily limit. Everything runs in your browser using the Canvas API — your images never touch a server.",
+      },
+    ],
+    ctaHref: "#resize",
+    ctaLabel: "Resize for Facebook Post",
+    relatedBlogSlugs: ["instagram-image-sizes-2026"],
+  },
+  {
+    slug: "app-icon",
+    type: "resize",
+    platform: "App Icon",
+    h1: "Make an app icon from any image (512×512)",
+    title: "Make an App Icon Online — Free App Icon Maker | Pixquish",
+    description:
+      "App icon size is 512×512 pixels. Make an Android or PWA app icon from any image — free, private, no uploads. Pick the App Icon preset in your browser.",
+    keyword: "app icon size",
+    targetDimensions: { width: 512, height: 512, unit: "px" },
+    heroLead:
+      "Android and PWA app icons are required at 512×512 pixels. Pixquish resizes your image to exactly that with Cover, Contain, or Stretch fit modes — 100% in your browser, nothing uploaded.",
+    whyUse: [
+      SHARED_PRIVACY_WHY,
+      {
+        title: "Exact 512×512 every time",
+        body: "Pick the App Icon preset and Pixquish sets the canvas to exactly 512×512 pixels — the size Google Play and Android require for the high-res store icon, and the size PWA manifests reference as the largest icon. No math, no guesswork.",
+      },
+      {
+        title: "Crisp at every downstream size",
+        body: "Android downscales your 512×512 icon to 192×192, 96×96, 48×48, and 36×36 for different surfaces. Pixquish's multi-step downscaling and optional unsharp mask keep edges and text crisp at every size — no mushy logos on the home screen.",
+      },
+      {
+        title: "Square canvas with cover, contain, or stretch",
+        body: "The App Icon preset locks the canvas to exactly 512×512. Pick Cover to fill the square and crop excess (best for landscape logos), Contain to fit the whole logo with padding (good for non-square logos with whitespace), or Stretch to fill exactly.",
+      },
+    ],
+    howToSteps: [
+      {
+        name: "Open the Resize tab",
+        text: "Click the Resize Images button above, or scroll to the Resize workspace at the bottom of the page. Switch from the Compress tab if needed.",
+      },
+      {
+        name: "Upload your image",
+        text: "Drag a logo or photo onto the resize drop zone, or click to pick one from your device. JPG, PNG, WebP, and AVIF are all accepted. PNG with transparency works best for app icons.",
+      },
+      {
+        name: "Pick the App Icon preset",
+        text: "In the preset dropdown, find Web → App Icon (512×512). The canvas is set to exactly 512×512 and the aspect lock engages automatically.",
+      },
+      {
+        name: "Choose a fit mode and format",
+        text: "Pick Cover to fill the square and crop excess (best for non-square logos), Contain to fit the whole logo with padding, or Stretch to fill exactly. Use the cover offset sliders to position the crop. Choose PNG output for transparency, or keep JPG/WebP for opaque icons.",
+      },
+      {
+        name: "Resize and download",
+        text: "Click Resize. Pixquish processes the image in your browser using a multi-step downscale for sharp results at small sizes, then lets you download it with one click. Drop the file into your Android project's res/ folder or your PWA manifest's icons array.",
+      },
+    ],
+    specs: [
+      { label: "Recommended size", value: "512 × 512 pixels" },
+      { label: "Aspect ratio", value: "1:1 (square)" },
+      { label: "Also used for", value: "PWA manifest icons, Google Play store icon" },
+      { label: "Downscaled to", value: "192×192, 144×144, 96×96, 72×72, 48×48 by Android" },
+      { label: "Best format", value: "PNG (transparency) for logos, JPG for photos" },
+      { label: "Best fit mode", value: "Contain to preserve whole logo, Cover for full-bleed" },
+    ],
+    faqs: [
+      {
+        question: "What is the app icon size?",
+        answer:
+          "Android app icons are required at 512×512 pixels — Google Play uses this as the high-resolution store icon, and Android downscales it to 192×192, 96×96, and 48×48 for different surfaces. PWA manifest icons also reference 512×512 as the largest size. Pixquish has an App Icon preset at exactly 512×512.",
+      },
+      {
+        question: "What format should an app icon be?",
+        answer:
+          "PNG is the most common format for app icons because it's lossless and supports transparency — useful for logos that don't fill the square. JPG works for opaque photo-style icons. Pixquish lets you pick PNG, JPG, WebP, or AVIF as the output format during the resize.",
+      },
+      {
+        question: "How do I make an app icon from an image?",
+        answer:
+          "Upload your image to the Pixquish Resize tab, pick the App Icon preset (512×512), and choose the Contain fit mode if your logo isn't square (so nothing is cropped). Pick PNG as the output format for transparency. Click Resize and download — then drop the file into your Android project or PWA manifest.",
+      },
+      {
+        question: "What's the difference between an app icon and a favicon?",
+        answer:
+          "App icons (512×512) are used by Android and PWAs on home screens and app drawers. Favicons (typically 16×16 source at 256×256) are shown in browser tabs and bookmarks. Pixquish has separate presets for both — pick App Icon for an Android/PWA icon, or Favicon for a website tab icon.",
+      },
+      {
+        question: "Do app icons need to be square?",
+        answer:
+          "Yes. Android and PWA app icons are always displayed in a square aspect ratio on home screens and in app drawers. Non-square icons get cropped or padded by the system, often awkwardly. Use Pixquish's App Icon preset (512×512) and choose Contain if your logo is not square — it will be padded with whitespace rather than cropped.",
+      },
+      {
+        question: "Is this app icon maker free?",
+        answer:
+          "Yes. Pixquish is completely free, with no sign-up, no watermark, and no daily limit. Everything runs in your browser using the Canvas API — your images never touch a server.",
+      },
+    ],
+    ctaHref: "#resize",
+    ctaLabel: "Make an app icon now",
+    relatedBlogSlugs: ["best-image-format-for-web"],
+  },
+  {
+    slug: "web-banner",
+    type: "resize",
+    platform: "Web Banner",
+    h1: "Resize image for Web Banner (1200×300)",
+    title: "Resize Image for Web Banner (1200×300) | Pixquish",
+    description:
+      "Web banner size is 1200×300 pixels (4:1). Resize your image for a website banner in your browser — free, private, no uploads. Pick the Web Banner preset.",
+    keyword: "web banner size",
+    targetDimensions: { width: 1200, height: 300, unit: "px" },
+    heroLead:
+      "Website leaderboard and banner ads commonly display at 1200×300 pixels (4:1). Pixquish resizes your image to exactly that with Cover, Contain, or Stretch fit modes — 100% in your browser, nothing uploaded.",
+    whyUse: [
+      SHARED_PRIVACY_WHY,
+      {
+        title: "Exact 1200×300 every time",
+        body: "Pick the Web Banner preset and Pixquish sets the canvas to exactly 1200×300 pixels — a common leaderboard and medium-rectangle-adjacent banner size used across ad networks and hero sections. No math, no guesswork.",
+      },
+      {
+        title: "Cover, Contain, or Stretch fit",
+        body: "Cover fills the wide 4:1 canvas and center-crops the excess — best for landscape photos. Contain fits the whole image inside with padding (good for square or vertical logos). Stretch fills the canvas exactly (with a distortion warning if the aspect ratio differs).",
+      },
+      {
+        title: "Adjustable crop position",
+        body: "The 4:1 aspect ratio is unforgiving — the wrong crop can cut off a logo or headline. Pixquish lets you slide the cover crop horizontally and vertically so the most important part of your image stays in frame.",
+      },
+    ],
+    howToSteps: [
+      {
+        name: "Open the Resize tab",
+        text: "Click the Resize Images button above, or scroll to the Resize workspace at the bottom of the page. Switch from the Compress tab if needed.",
+      },
+      {
+        name: "Upload your image",
+        text: "Drag a photo or design onto the resize drop zone, or click to pick one from your device. JPG, PNG, WebP, and AVIF are all accepted.",
+      },
+      {
+        name: "Pick the Web Banner preset",
+        text: "In the preset dropdown, find Web → Web Banner (1200×300). The canvas is set to exactly 1200×300 and the aspect lock engages automatically.",
+      },
+      {
+        name: "Choose a fit mode and adjust crop",
+        text: "Pick Cover to fill the wide canvas and crop excess (best for landscape photos), Contain to fit the whole image with padding, or Stretch to fill exactly. Use the cover offset sliders to position the crop so the key subject stays in frame.",
+      },
+      {
+        name: "Resize and download",
+        text: "Click Resize. Pixquish processes the image in your browser using a multi-step downscale for sharp results, then lets you download it with one click. Tip: switch to the Compress tab to keep the file under 150 KB for fast page load.",
+      },
+    ],
+    specs: [
+      { label: "Recommended size", value: "1200 × 300 pixels" },
+      { label: "Aspect ratio", value: "4:1 (wide banner)" },
+      { label: "Also used for", value: "Leaderboard banners, hero strips, ad slots" },
+      { label: "Best format", value: "JPG for photos, PNG for graphics with text" },
+      { label: "Max file size", value: "Keep under 150 KB for fast page load" },
+      { label: "Best fit mode", value: "Cover for landscape photos, Contain to preserve whole image" },
+    ],
+    faqs: [
+      {
+        question: "What size is a web banner?",
+        answer:
+          "There's no single web banner size — common dimensions include 1200×300 (Pixquish's Web Banner preset), 728×90 (leaderboard), 300×250 (medium rectangle), and 160×600 (wide skyscraper). Pixquish has a Web Banner preset at 1200×300; use the custom width and height inputs for other ad-slot sizes.",
+      },
+      {
+        question: "What aspect ratio is 1200×300?",
+        answer:
+          "1200×300 is a 4:1 aspect ratio — a wide horizontal banner. This works well for hero strips, leaderboard banners, and the wide ad slots above article content. Pick the Web Banner preset in Pixquish and the aspect lock engages automatically.",
+      },
+      {
+        question: "Should I use PNG or JPG for a web banner?",
+        answer:
+          "Use JPG for photo-based banners — smaller files, faster page loads. Use PNG for banners with text, logos, or sharp graphics (PNG keeps text crisp and avoids JPEG ringing). Pixquish can convert your image to either format during the resize, or compress it after if the file is too large.",
+      },
+      {
+        question: "How do I resize an image for a web banner without cropping?",
+        answer:
+          "Pick the Web Banner preset (1200×300) and choose the Contain fit mode. Pixquish fits your entire image inside the 4:1 canvas with optional padding (solid color or blurred background) so nothing is cropped. Switch to Cover if you'd rather fill the canvas and crop the excess.",
+      },
+      {
+        question: "How do I make a web banner smaller in file size?",
+        answer:
+          "After resizing to 1200×300 in Pixquish, switch to the Compress tab to bring the file under 150 KB — or use the target file size feature to hit a specific size like 100 KB. JPG typically produces the smallest files; WebP or AVIF are even smaller at equivalent quality.",
+      },
+      {
+        question: "Is this web banner resizer free?",
+        answer:
+          "Yes. Pixquish is completely free, with no sign-up, no watermark, and no daily limit. Everything runs in your browser using the Canvas API — your images never touch a server.",
+      },
+    ],
+    ctaHref: "#resize",
+    ctaLabel: "Resize for Web Banner",
+    relatedBlogSlugs: [],
+  },
+
+  // ── Batch 2: Compress pages (image categories the engine detects) ──────
+  {
+    slug: "photo",
+    type: "compress",
+    format: "photo",
+    h1: "Compress photos online — free, private, no uploads",
+    title: "Compress Photos — Free Online Photo Compressor | Pixquish",
+    description:
+      "Compress photos online — free, no uploads. Pixquish is a photo compressor that detects photos and uses a photo-optimized quality table. 100% in your browser.",
+    keyword: "compress photo",
+    heroLead:
+      "Shrink photos by up to 80% in your browser. Pixquish detects when an image is a photo and applies a photo-optimized quality table (Q90 Best / Q80 Balanced / Q66 Max) so skin tones and skies stay smooth. 100% private — nothing is uploaded.",
+    whyUse: [
+      SHARED_PRIVACY_WHY,
+      {
+        title: "Photo-optimized quality table preserves skin tones and skies",
+        body: "Pixquish analyses each image and detects when it's a photo, then applies a tailored quality table — Q90 in Best Quality mode, Q80 in Balanced, Q66 in Max Compress. These values are tuned for photos: smooth gradients stay smooth and skin tones don't posterize.",
+      },
+      {
+        title: "Three modes for any photo",
+        body: "Best Quality keeps artifacts invisible (great for portfolio shots), Balanced is the sweet spot for the web, and Max Compress goes as small as the format allows while staying usable (great for thumbnails and previews). Live preview lets you compare side by side.",
+      },
+      {
+        title: "Target a specific file size",
+        body: "Set an exact target (100 KB, 200 KB, 500 KB) and Pixquish runs a binary search over quality levels to land as close as possible to your target while keeping the best achievable visual quality — perfect for upload limits and email attachments.",
+      },
+    ],
+    howToSteps: [
+      {
+        name: "Drop your photo into the compressor",
+        text: "Drag a JPG, PNG, WebP, or AVIF photo onto the compressor drop zone at the top of the page, or click to pick one (or several) from your device. Batch as many as you like.",
+      },
+      {
+        name: "Pick Best Quality mode",
+        text: "Choose Best Quality to keep the photo looking identical to the original at typical viewing sizes — Pixquish's photo-optimized Q90 default keeps skin tones and gradients smooth. Switch to Balanced or Max Compress for smaller files.",
+      },
+      {
+        name: "Optional: set a target file size",
+        text: "Need a specific size like 100 KB for an upload limit or email attachment? Enter it in the target file size field and Pixquish searches quality levels to hit your target.",
+      },
+      {
+        name: "Optional: switch output format",
+        text: "Leave the output on Auto (Pixquish will recommend WebP for photos — it beats JPEG at equal quality) or pick JPG for maximum compatibility, PNG for lossless output, or AVIF for the smallest files at the same quality.",
+      },
+      {
+        name: "Compress and download",
+        text: "Click Compress. Pixquish processes the photo entirely in your browser and lets you download each result individually with one click — no zip extraction needed.",
+      },
+    ],
+    faqs: [
+      {
+        question: "How do I compress a photo without losing quality?",
+        answer:
+          "Upload your photo and choose Best Quality mode. Pixquish detects that the image is a photo and applies Q90 — a quality tuned for photos that keeps skin tones, skies, and gradients smooth. The result looks identical to the original at typical viewing sizes while still cutting file size by 40–70%. For zero quality loss, switch the output to PNG (lossless).",
+      },
+      {
+        question: "What's the best photo compressor?",
+        answer:
+          "The best photo compressor (1) runs in your browser so your photos stay private, (2) detects when an image is a photo and uses a photo-optimized quality table rather than a one-size-fits-all setting, (3) offers a target file size feature, and (4) shows a live preview before you download. Pixquish does all four — and it's free with no sign-up.",
+      },
+      {
+        question: "How much can I reduce photo file size?",
+        answer:
+          "Typical camera and phone photos can be reduced by 50–80% in Best Quality mode with no visible quality loss, by 70–85% in Balanced mode, and by 80–95% in Max Compress mode. Switching the output from JPEG to WebP typically saves another 25–35% at equivalent visual quality; AVIF saves 40–50%.",
+      },
+      {
+        question: "Should I convert my photos to WebP?",
+        answer:
+          "In most cases, yes. WebP beats JPEG at equal quality by 25–35% on photos, and it's supported in all modern browsers. Pixquish's auto format selector recommends WebP for photos by default. Keep JPEG if you need maximum compatibility with very old browsers or non-browser clients, or pick AVIF for the smallest files at the same quality.",
+      },
+      {
+        question: "Does compressing photos reduce quality?",
+        answer:
+          "JPEG and lossy WebP/AVIF are lossy formats, so every re-encode introduces some quality loss. Pixquish mitigates this in three ways: the engine detects when an image is a photo and applies a photo-optimized quality table (Q90 in Best Quality mode) that keeps artifacts essentially invisible, the live preview shows exactly what you'll get, and you can always switch to PNG (lossless) if you need zero quality loss.",
+      },
+      {
+        question: "Is this photo compressor free?",
+        answer:
+          "Yes. Pixquish is completely free, with no sign-up, no watermark, no upload limit beyond your device's memory, and no premium tier. Everything runs in your browser using the Canvas API — your photos never touch a server.",
+      },
+    ],
+    ctaHref: "#workspace",
+    ctaLabel: "Compress a photo now",
+    relatedBlogSlugs: ["compression-modes-compared", "compress-jpg-to-100kb"],
+  },
+  {
+    slug: "screenshot",
+    type: "compress",
+    format: "screenshot",
+    h1: "Compress screenshots online — free, private, no uploads",
+    title: "Compress Screenshots — Free Screenshot Compressor | Pixquish",
+    description:
+      "Compress screenshots online — free, no uploads. Pixquish detects screenshots and recommends WebP to avoid JPEG ringing on text. 100% in your browser.",
+    keyword: "compress screenshot",
+    heroLead:
+      "Shrink screenshots without the blur. Pixquish detects when an image is a screenshot and applies a screenshot-optimized quality table (Q92 / Q82 / Q70), recommending WebP to keep text crisp and avoid JPEG ringing artifacts. 100% private — nothing is uploaded.",
+    whyUse: [
+      SHARED_PRIVACY_WHY,
+      {
+        title: "Screenshot-optimized quality table keeps text crisp",
+        body: "Screenshots are mostly text, sharp edges, and flat colors — content that JPEG struggles with. Pixquish detects screenshots and applies a higher quality table (Q92 Best / Q82 Balanced / Q70 Max) tuned to keep text and UI elements crisp rather than ringing.",
+      },
+      {
+        title: "Recommends WebP to avoid JPEG ringing artifacts",
+        body: "JPEG introduces visible ringing around text and sharp edges — the classic 'ghosting' on screenshot text. Pixquish's auto format selector recommends WebP for screenshots, which handles text far better at equal quality. You can override the choice in the format selector.",
+      },
+      {
+        title: "Target a specific file size for uploads",
+        body: "Need a screenshot under 200 KB for a support ticket or bug report? Set a target file size and Pixquish searches quality levels to land as close as possible while keeping the text readable — perfect for hitting strict upload limits.",
+      },
+    ],
+    howToSteps: [
+      {
+        name: "Drop your screenshot into the compressor",
+        text: "Drag a JPG, PNG, WebP, or AVIF screenshot onto the compressor drop zone at the top of the page, or click to pick one (or several) from your device. Batch as many as you like.",
+      },
+      {
+        name: "Let Pixquish detect the screenshot",
+        text: "Pixquish analyses each image and detects when it's a screenshot (limited palette, sharp edges, modest resolution) — then applies a screenshot-optimized quality table (Q92 Best / Q82 Balanced / Q70 Max) and recommends WebP as the output format to avoid JPEG ringing on text.",
+      },
+      {
+        name: "Optional: set a target file size",
+        text: "Need a specific size like 200 KB for a support ticket or bug report? Enter it in the target file size field and Pixquish searches quality levels to hit your target while keeping text readable.",
+      },
+      {
+        name: "Optional: switch output format",
+        text: "Leave the output on Auto (Pixquish will recommend WebP for screenshots — it handles text far better than JPEG at equal quality) or pick PNG for lossless output, JPG for maximum compatibility, or AVIF for the smallest files at the same quality.",
+      },
+      {
+        name: "Compress and download",
+        text: "Click Compress. Pixquish processes the screenshot entirely in your browser and lets you download each result individually with one click — text stays crisp, file size drops dramatically.",
+      },
+    ],
+    faqs: [
+      {
+        question: "How do I compress a screenshot?",
+        answer:
+          "Upload your screenshot (PNG, JPG, WebP, or AVIF) to the Pixquish compressor and click Compress. Pixquish detects that the image is a screenshot and applies a higher quality table (Q92 in Best Quality mode) tuned for text and sharp edges. For a specific output size, use the target file size field. Everything runs in your browser — nothing is uploaded.",
+      },
+      {
+        question: "What's the best format for screenshots?",
+        answer:
+          "PNG is the most common source format for screenshots (it's what screenshot tools produce by default), but it's not always the smallest. WebP at high quality handles text and sharp edges far better than JPEG and is typically 25–50% smaller than PNG for the same screenshot. Pixquish's auto format selector recommends WebP for screenshots by default.",
+      },
+      {
+        question: "Why do my screenshots look blurry as JPG?",
+        answer:
+          "JPEG introduces visible ringing artifacts around text and sharp edges — the classic 'ghosting' on screenshot text. This is a fundamental limitation of JPEG, not a quality setting issue. Pixquish detects screenshots and recommends WebP instead, which handles text far better at equal quality and file size. You can also pick PNG for lossless output.",
+      },
+      {
+        question: "How do I reduce screenshot file size?",
+        answer:
+          "PNG screenshots from a 4K monitor can easily be 3–5 MB. Compressing them in Pixquish typically reduces the file size by 60–80% with no visible quality loss — switch to WebP for an extra 25–50% reduction. For a specific target like 200 KB for a support ticket, use the target file size feature and Pixquish searches quality levels to hit it.",
+      },
+      {
+        question: "Should I use PNG or WebP for screenshots?",
+        answer:
+          "WebP at high quality is almost always the better choice for screenshots — it's 25–50% smaller than PNG for the same screenshot, handles text far better than JPEG, and is supported in all modern browsers. Keep PNG if you need a lossless source file or maximum compatibility with very old browsers. Pixquish's auto format selector recommends WebP for screenshots by default.",
+      },
+      {
+        question: "Is this screenshot compressor free?",
+        answer:
+          "Yes. Pixquish is completely free, with no sign-up, no watermark, no upload limit beyond your device's memory, and no premium tier. Everything runs in your browser using the Canvas API — your screenshots never touch a server.",
+      },
+    ],
+    ctaHref: "#workspace",
+    ctaLabel: "Compress a screenshot now",
+    relatedBlogSlugs: ["best-image-format-for-web", "compression-modes-compared"],
+  },
 ];
 
 /** Get all landing pages (compress + resize). */

@@ -30,6 +30,12 @@ export function ImageWorkspace() {
   const selectedIdsRef = React.useRef(selectedIds);
   React.useEffect(() => { selectedIdsRef.current = selectedIds; }, [selectedIds]);
 
+  // Track whether the first/last file cards are currently in view, so the
+  // "First image" / "Last image" navigation buttons can be hidden when their
+  // target is already visible (no point jumping to a position you're at).
+  const [firstInView, setFirstInView] = React.useState(true);
+  const [lastInView, setLastInView] = React.useState(true);
+
   const {
     files,
     controls,
@@ -124,6 +130,51 @@ export function ImageWorkspace() {
       return () => cancelAnimationFrame(t);
     }
     prevLenRef.current = files.length;
+  }, [files.length]);
+
+  // Observe the first and last file cards. When a target is already in view,
+  // its nav button is hidden (no point jumping to a position you can see).
+  // When both are in view (short list), the whole nav row is hidden.
+  React.useEffect(() => {
+    if (files.length <= 1) {
+      setFirstInView(true);
+      setLastInView(true);
+      return;
+    }
+    const list = fileListRef.current;
+    if (!list) return;
+
+    let observer: IntersectionObserver | null = null;
+    // Defer to next frame so the just-rendered FileItems are queryable.
+    const raf = requestAnimationFrame(() => {
+      const items = list.querySelectorAll<HTMLElement>("[data-file-item]");
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+
+      // Assume visible until the observer fires — avoids a flash of the
+      // buttons on mount when the list is short and fits in the viewport.
+      setFirstInView(true);
+      setLastInView(true);
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.target === first) setFirstInView(entry.isIntersecting);
+            if (entry.target === last) setLastInView(entry.isIntersecting);
+          }
+        },
+        // Trigger as soon as any part of the target is visible.
+        { threshold: 0 },
+      );
+      observer.observe(first);
+      observer.observe(last);
+    });
+
+    return () => {
+      cancelAnimationFrame(raf);
+      observer?.disconnect();
+    };
   }, [files.length]);
 
   const handleCompress = () => {
@@ -302,34 +353,38 @@ export function ImageWorkspace() {
                 </AnimatePresence>
               </div>
 
-              {/* Navigation: first / last image */}
-              {files.length > 1 && (
+              {/* Navigation: first / last image — hidden when target already in view */}
+              {files.length > 1 && (!firstInView || !lastInView) && (
                 <div className="flex items-center justify-center gap-2 py-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => {
-                      const firstItem = fileListRef.current?.querySelector("[data-file-item]");
-                      firstItem?.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }}
-                  >
-                    <ChevronUp className="size-3.5" />
-                    First image
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5"
-                    onClick={() => {
-                      const items = fileListRef.current?.querySelectorAll("[data-file-item]");
-                      const lastItem = items?.[items.length - 1];
-                      lastItem?.scrollIntoView({ behavior: "smooth", block: "end" });
-                    }}
-                  >
-                    Last image
-                    <ChevronDown className="size-3.5" />
-                  </Button>
+                  {!firstInView && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => {
+                        const firstItem = fileListRef.current?.querySelector("[data-file-item]");
+                        firstItem?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }}
+                    >
+                      <ChevronUp className="size-3.5" />
+                      First image
+                    </Button>
+                  )}
+                  {!lastInView && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => {
+                        const items = fileListRef.current?.querySelectorAll("[data-file-item]");
+                        const lastItem = items?.[items.length - 1];
+                        lastItem?.scrollIntoView({ behavior: "smooth", block: "end" });
+                      }}
+                    >
+                      Last image
+                      <ChevronDown className="size-3.5" />
+                    </Button>
+                  )}
                 </div>
               )}
 

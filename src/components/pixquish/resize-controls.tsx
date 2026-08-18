@@ -17,6 +17,7 @@ import {
   Wand2,
   Sparkles,
   Gauge,
+  ArrowLeftRight,
 } from "lucide-react";
 import {
   Select,
@@ -243,6 +244,12 @@ export function ResizeControls({
               <div className="flex items-center gap-2">
                 <Maximize2 className="size-4 text-brand" />
                 <p className="text-sm font-medium">Dimensions</p>
+                {!hasPreset && options.width !== null && options.height !== null && (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-brand-muted px-1.5 py-0.5 text-[10px] font-medium text-brand">
+                    <Sparkles className="size-2.5" />
+                    Custom
+                  </span>
+                )}
               </div>
 
               {/* Preset selector */}
@@ -254,6 +261,10 @@ export function ResizeControls({
                   <SelectValue placeholder="Custom size" />
                 </SelectTrigger>
                 <SelectContent className="max-h-64">
+                  <SelectGroup>
+                    <SelectLabel>Custom</SelectLabel>
+                    <SelectItem value="custom">Custom dimensions…</SelectItem>
+                  </SelectGroup>
                   {(["Social", "Web", "Common"] as const).map((cat) => (
                     <SelectGroup key={cat}>
                       <SelectLabel>{cat}</SelectLabel>
@@ -312,6 +323,60 @@ export function ResizeControls({
                   />
                 </div>
               </div>
+
+              {/* Quick-set shortcuts + swap W↔H */}
+              {(originalDimensions || (options.width !== null && options.height !== null)) && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {originalDimensions && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => onChange({
+                          width: originalDimensions.width,
+                          height: originalDimensions.height,
+                        })}
+                        className="rounded-md border border-border/60 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                      >
+                        Original
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onChange({
+                          width: Math.max(1, Math.round(originalDimensions.width / 2)),
+                          height: Math.max(1, Math.round(originalDimensions.height / 2)),
+                        })}
+                        className="rounded-md border border-border/60 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                      >
+                        ½×
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onChange({
+                          width: originalDimensions.width * 2,
+                          height: originalDimensions.height * 2,
+                        })}
+                        className="rounded-md border border-border/60 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                      >
+                        2×
+                      </button>
+                    </>
+                  )}
+                  {options.width !== null && options.height !== null && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onChange({ width: options.height, height: options.width })
+                      }
+                      className="ml-auto flex items-center gap-1 rounded-md border border-border/60 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                      aria-label="Swap width and height"
+                      title="Swap width and height"
+                    >
+                      <ArrowLeftRight className="size-3" />
+                      Swap
+                    </button>
+                  )}
+                </div>
+              )}
 
               {originalDimensions && (
                 <p className="text-xs text-muted-foreground">

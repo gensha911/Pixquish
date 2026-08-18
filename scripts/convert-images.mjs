@@ -15,7 +15,10 @@ const PUBLIC = path.join(ROOT, "public");
 
 const DIRS = ["guide", "blog"];
 
-const QUALITY = 82; // screenshots: Q82 is visually lossless, ~5-10x smaller than PNG
+// Screenshots contain text + UI elements — very sensitive to compression artifacts.
+// Q92 is "visually lossless" per Pixquish's own blog (matches Q90 recommendation).
+// Lower Q (e.g. 82) makes text blurry/blocky. Q92 keeps text crisp.
+const QUALITY = 92;
 
 async function convertDir(dir) {
   const absDir = path.join(PUBLIC, dir);

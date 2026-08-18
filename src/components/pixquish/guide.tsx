@@ -44,7 +44,7 @@ const STEPS: GuideStep[] = [
     title: "Upload Your Images",
     description:
       "Drag and drop images directly onto the upload area, or click to browse your files. Pixquish accepts JPEG, PNG, WebP, and AVIF formats. You can upload multiple images at once for batch processing.",
-    screenshot: "/guide/c-01-upload.png",
+    screenshot: "/guide/c-01-upload.webp",
     highlights: [
       "Drag and drop zone supports multiple files",
       "Click the upload button to browse your device",
@@ -59,7 +59,7 @@ const STEPS: GuideStep[] = [
     title: "Choose Compression Mode",
     description:
       "Pick from three intelligent modes: Best Quality for minimal size reduction with zero visual loss, Balanced for a smart trade-off between quality and file size, or Max Compress for the smallest possible files.",
-    screenshot: "/guide/c-02-mode.png",
+    screenshot: "/guide/c-02-mode.webp",
     highlights: [
       "Best Quality — minimal compression, maximum fidelity",
       "Balanced — smart quality/size trade-off (default)",
@@ -72,7 +72,7 @@ const STEPS: GuideStep[] = [
     title: "Set a Target File Size",
     description:
       "Need a file under a specific size? Click one of the preset buttons (20 KB, 50 KB, 100 KB, 200 KB, 500 KB, 1 MB) or type a custom value. Pixquish uses an intelligent binary search across quality levels to hit your target as closely as possible.",
-    screenshot: "/guide/c-03-target.png",
+    screenshot: "/guide/c-03-target.webp",
     highlights: [
       "Quick presets from 20 KB to 1 MB",
       "Custom target size with KB/MB toggle",
@@ -86,7 +86,7 @@ const STEPS: GuideStep[] = [
     title: "Click Compress",
     description:
       "Once your mode and target size are set, hit the Compress button in the workspace header. Use Compress All to process every image, Compress N Selected to compress just the files you've checked, or the per-row Compress button for a single image. Everything runs locally in your browser — your images never leave your device.",
-    screenshot: "/guide/c-04-compress.png",
+    screenshot: "/guide/c-04-compress.webp",
     highlights: [
       "Compress All processes every uploaded image at once",
       "Compress N Selected processes only the checked files",
@@ -100,7 +100,7 @@ const STEPS: GuideStep[] = [
     title: "Compare Before and After",
     description:
       "After compression, each image shows an interactive comparison slider. Drag the handle left and right to see the exact difference between original and compressed versions. Scroll to zoom in for pixel-level inspection, then drag to pan around the zoomed view.",
-    screenshot: "/guide/c-05-compare.png",
+    screenshot: "/guide/c-05-compare.webp",
     highlights: [
       "Drag the slider to compare original vs compressed",
       "Scroll wheel to zoom in (up to 1000%)",
@@ -115,7 +115,7 @@ const STEPS: GuideStep[] = [
     title: "Download Results",
     description:
       "Download individual images or use Download All to grab every processed file at once. Each download is named with the original filename plus a suffix so you never overwrite your originals.",
-    screenshot: "/guide/c-06-download.png",
+    screenshot: "/guide/c-06-download.webp",
     highlights: [
       "Individual download button per image",
       "Download All grabs everything in one click",
@@ -130,7 +130,7 @@ const STEPS: GuideStep[] = [
     title: "Resize to Exact Dimensions",
     description:
       "Switch to the Resize tab and set precise width and height in pixels, or choose from 20+ presets for social media platforms like Instagram, X/Twitter, Facebook, YouTube, LinkedIn, and Pinterest.",
-    screenshot: "/guide/09-resize-dimensions.png",
+    screenshot: "/guide/09-resize-dimensions.webp",
     compact: true,
     highlights: [
       "Set exact width × height in pixels",
@@ -145,7 +145,7 @@ const STEPS: GuideStep[] = [
     title: "Lock Aspect Ratio & Choose Fit Mode",
     description:
       "Toggle the aspect ratio lock to keep proportions when changing one dimension. Then pick a fit mode: Cover fills the canvas and center-crops excess, Contain fits the image inside with optional padding color, and Stretch fills exactly (with a distortion warning if the ratio doesn't match).",
-    screenshot: "/guide/10-resize-fit-modes.png",
+    screenshot: "/guide/10-resize-fit-modes.webp",
     compact: true,
     highlights: [
       "Aspect ratio lock keeps proportions automatically",
@@ -160,7 +160,7 @@ const STEPS: GuideStep[] = [
     title: "Smart Multi-Step Downscaling",
     description:
       "When shrinking images significantly, Pixquish uses a multi-step downscaling algorithm with high-quality smoothing. This produces sharper results than a single-step resize, especially for photos with fine detail. Scroll to zoom into the result and drag to pan around for pixel-level inspection.",
-    screenshot: "/guide/11-resize-result.png",
+    screenshot: "/guide/11-resize-result.webp",
     compact: true,
     highlights: [
       "Multi-step halving for sharp downscaling",
@@ -175,7 +175,7 @@ const STEPS: GuideStep[] = [
     title: "Batch Process Multiple Images",
     description:
       "Upload multiple images and process them all at once with the same settings. Select specific files with checkboxes, or process everything. The summary bar shows total progress and results across all images.",
-    screenshot: "/guide/07-batch-download.png",
+    screenshot: "/guide/07-batch-download.webp",
     highlights: [
       "Upload as many images as you want at once",
       "Select specific files with checkboxes to process only those",
@@ -189,7 +189,7 @@ const STEPS: GuideStep[] = [
     title: "Works on Any Device",
     description:
       "Pixquish is fully responsive and works on phones, tablets, and desktops. On mobile, controls stack vertically for easy thumb access. Touch gestures are fully supported for the comparison slider and zooming.",
-    screenshot: "/guide/08-mobile.png",
+    screenshot: "/guide/08-mobile.webp",
     portrait: true,
     highlights: [
       "Fully responsive layout for all screen sizes",

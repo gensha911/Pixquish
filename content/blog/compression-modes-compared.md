@@ -4,7 +4,7 @@ description: "We compressed the same photo with all 3 modes and measured the res
 date: "2026-08-15"
 author: "Pixquish"
 tags: ["image-compression", "lossless", "best-quality", "balanced", "max-compress"]
-image: "/blog/compression-best-quality.png"
+image: "/blog/compression-best-quality.webp"
 ---
 
 We took one photo and compressed it three ways — once with each of Pixquish's compression modes. Same image, same browser, same settings except for the mode. Here's exactly what happened.
@@ -31,7 +31,7 @@ We ran the same image through Best Quality, Balanced, and Max Compress modes wit
 
 ## Mode 1: Best Quality (lossless-grade compression)
 
-![Best Quality mode: 6.9 MB compressed to 2.5 MB, a 64% reduction at Q90](/blog/compression-best-quality.png)
+![Best Quality mode: 6.9 MB compressed to 2.5 MB, a 64% reduction at Q90](/blog/compression-best-quality.webp)
 
 Best Quality mode compressed the 6.9 MB photo down to **2.5 MB** — a **64% reduction** — at quality Q90.
 
@@ -52,7 +52,7 @@ When you **don't** select a target file size and only choose Best Quality mode, 
 
 ## Mode 2: Balanced (the default)
 
-![Balanced mode: 6.9 MB compressed to 1.7 MB, a 75% reduction at Q80](/blog/compression-balanced.png)
+![Balanced mode: 6.9 MB compressed to 1.7 MB, a 75% reduction at Q80](/blog/compression-balanced.webp)
 
 Balanced mode compressed the 6.9 MB photo down to **1.7 MB** — a **75% reduction** — at quality Q80.
 
@@ -72,7 +72,7 @@ Balanced is 11 percentage points more aggressive than Best Quality (75% vs 64% r
 
 ## Mode 3: Max Compress (smallest file)
 
-![Max Compress mode: 6.9 MB compressed to 1.3 MB, an 82% reduction at Q66](/blog/compression-max-compress.png)
+![Max Compress mode: 6.9 MB compressed to 1.3 MB, an 82% reduction at Q66](/blog/compression-max-compress.webp)
 
 Max Compress mode compressed the 6.9 MB photo down to **1.3 MB** — an **82% reduction** — at quality Q66.
 

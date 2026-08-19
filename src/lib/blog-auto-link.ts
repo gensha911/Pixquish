@@ -69,6 +69,16 @@ export interface BlogKeywordLink {
  * PNG image" when both would link to the same URL anyway.
  */
 export const BLOG_KEYWORD_LINKS: BlogKeywordLink[] = [
+  // === Index page links ===
+  // /compress
+  { keyword: "online image compressor", url: "/compress" },
+  { keyword: "image compressor tool", url: "/compress" },
+  { keyword: "free image compressor", url: "/compress" },
+  // /resize
+  { keyword: "online image resizer", url: "/resize" },
+  { keyword: "image resizer tool", url: "/resize" },
+  { keyword: "free image resizer", url: "/resize" },
+
   // === Compress pages — natural prose variants ===
   // /compress/png
   { keyword: "compress your PNG", url: "/compress/png" },

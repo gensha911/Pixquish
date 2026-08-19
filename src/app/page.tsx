@@ -1,3 +1,5 @@
+"use client";
+
 import dynamic from "next/dynamic";
 import { Navbar } from "@/components/pixquish/navbar";
 import { Hero } from "@/components/pixquish/hero";
